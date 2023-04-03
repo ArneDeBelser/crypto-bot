@@ -1,0 +1,23 @@
+{
+  "name": "cryptalyze-bot",
+  "version": "1.0.0",
+  "description": "CryptAlyze Trading Bot",
+  "main": "bot.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "author": "De Belser Arne",
+  "license": "ISC",
+  "dependencies": {
+    "ccxt": "^3.0.51"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "cors-anywhere": "^0.4.4",
+    "rollup-plugin-babel": "^4.4.0",
+    "vite": "^4.2.1"
+  }
+}
