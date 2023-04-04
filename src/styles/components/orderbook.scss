@@ -1,0 +1,54 @@
+.orderbook {
+    background-color: #1a1a1a;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    color: #fff;
+}
+
+.orderbook h2 {
+    font-size: 1.5em;
+    margin: 0;
+    padding: 20px;
+    background-color: #333;
+    border-bottom: 1px solid #666;
+}
+
+.orderbook-header {
+    display: flex;
+    border-bottom: 1px solid #666;
+}
+
+.orderbook-header-item {
+    flex-grow: 1;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.orderbook-row {
+    display: flex;
+}
+
+.orderbook-row-item {
+    flex-grow: 1;
+    padding: 10px;
+    text-align: center;
+}
+
+.orderbook-row.bid {
+    background-color: rgba(0, 255, 0, 0.1);
+}
+
+.orderbook-row.ask {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+.orderbook-row-item.bid-price {
+    color: #00cc00;
+}
+
+.orderbook-row-item.ask-price {
+    color: #ff4444;
+}

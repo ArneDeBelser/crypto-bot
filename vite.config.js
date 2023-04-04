@@ -1,30 +1,24 @@
-// import corsAnywhere from 'cors-anywhere';
+/* Environment configuration */
+import dotenv from 'dotenv';
+dotenv.config();
 
-// corsAnywhere.createServer({
-//     // Set the allowed origin for requests
-//     originWhitelist: ['http://localhost:5173'],
-// }).listen(8080, 'localhost', function () {
-//     console.log('CORS Anywhere server running on localhost:8080');
-// });
+import cssOnly from 'rollup-plugin-css-only';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import vue from '@vitejs/plugin-vue';
 
 export default {
-    // server: {
-    //     proxy: {
-    //         '/api': {
-    //             target: 'http://localhost:8081',
-    //             changeOrigin: true,
-    //             pathRewrite: {
-    //                 '^/api': ''
-    //             }
-    //         }
-    //     }
-    // },
+    resolve: {
+        alias: {
+            'vue$': 'vue/dist/vue.esm-bundler.js'
+        }
+    },
     build: {
         target: 'es2020', // set the target to ES2020 to enable modern syntax
         polyfillDynamicImport: false, // disable dynamic imports polyfill (optional)
         outDir: 'dist', // specify the output directory
         minify: true, // enable minification (optional)
         sourcemap: true, // enable sourcemaps (optional)
+        cssCodeSplit: true, // enable CSS code splitting
         rollupOptions: {
             // include the necessary plugins for transpilation
             plugins: [
@@ -34,10 +28,19 @@ export default {
                     preferBuiltins: false,
                 }),
                 require('rollup-plugin-babel')({
-                    babelHelpers: 'bundled',
                     presets: ['@babel/preset-env'],
                 }),
             ],
         },
     },
+    plugins: [
+        vue(),
+        cssOnly({
+            output: 'styles.css',
+        }),
+        nodePolyfills({
+            // Whether to polyfill `node:` protocol imports.
+            protocolImports: true,
+        }),
+    ],
 };

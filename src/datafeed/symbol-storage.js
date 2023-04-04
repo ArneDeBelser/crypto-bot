@@ -1,6 +1,6 @@
 import ccxt from 'ccxt';
 import { SUPPORTED_RESOLUTIONS } from "./data-provider";
-import config from '../config/bitmart.js';
+import config from '../exchanges/bitmart/config.js';
 
 export default class SymbolsStorage {
     constructor() {
@@ -23,8 +23,6 @@ export default class SymbolsStorage {
             const market = this.bitmart.market(symbolName);
             const { precision } = market;
 
-            console.log(precision);
-            console.log(Math.pow(10, precision.price));
             this.history[symbolName] = {
                 name: symbolName,
                 description: `${coin.toUpperCase()}/USDT on Bitmart`,

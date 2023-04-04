@@ -1,0 +1,33 @@
+/* Import your Sass files */
+@import './components/chart';
+@import './components/orderbook';
+@import './components/sidebar';
+@import './components/topbar';
+@import './utils/mixins';
+@import './utils/variables';
+
+/* Rest of your styles */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+#main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+#chart {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}

@@ -1,6 +1,6 @@
 import SymbolsStorage from "./symbol-storage";
 import ccxt from "ccxt";
-import config from '../config/bitmart.js';
+import config from '../exchanges/bitmart/config.js';
 
 export const SUPPORTED_RESOLUTIONS = ["1", "2", "3", "5", "10", "15", "30", "60", "120", "240", "360", "720", "D", "1D", "3D", "W", "1W", "2W", "1M"];
 
@@ -8,11 +8,12 @@ let lastBarTime = 0;
 const lastBarsCache = new Map();
 
 export default class DataProvider {
-    constructor() {
+    constructor(exchange) {
         this._loadedPromise = new Promise((resolve) => {
             this._resolveLoaded = resolve
         });
 
+        this._exchange = exchange;
         this._subscribers = {};
         this._symbolsStorage = new SymbolsStorage();
     }
@@ -102,21 +103,17 @@ export default class DataProvider {
         );
 
         if (firstDataRequest && bars.length > 0) {
-            console.log('firstDataRequest', firstDataRequest);
             lastBarTime = bars[bars.length - 1].time;
             lastBarsCache.set(symbolInfo.ticker, {
                 ...bars[bars.length - 1],
             });
-            console.log('lastBarsCache', lastBarsCache);
         }
 
         if (bars.length > 0) {
-            console.log('still bars');
             onHistoryCallback(bars, {
                 noData: false,
             });
         } else {
-            console.log('no bars');
             onHistoryCallback([], {
                 noData: true,
             });
