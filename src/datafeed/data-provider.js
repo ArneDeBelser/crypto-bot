@@ -1,6 +1,6 @@
 import SymbolsStorage from "./symbol-storage";
-import ccxt from "ccxt";
-import config from '../exchanges/bitmart/config.js';
+import store from '../store.mjs';
+import ccxt from 'ccxt';
 
 export const SUPPORTED_RESOLUTIONS = ["1", "2", "3", "5", "10", "15", "30", "60", "120", "240", "360", "720", "D", "1D", "3D", "W", "1W", "2W", "1M"];
 
@@ -9,17 +9,25 @@ const lastBarsCache = new Map();
 
 export default class DataProvider {
     constructor(exchange) {
-        this._loadedPromise = new Promise((resolve) => {
-            this._resolveLoaded = resolve
-        });
+        this.exchange = exchange;
+        this.subscribers = {};
+        this.symbolsStorage = new SymbolsStorage(exchange);
+    }
 
-        this._exchange = exchange;
-        this._subscribers = {};
-        this._symbolsStorage = new SymbolsStorage();
+    static async create() {
+        console.log('Setting up exchange');
+        const exchangeName = "bitmart";
+        const config = await import(
+            `../exchanges/${exchangeName}/configApp.mjs`
+        );
+        const exchange = new ccxt[exchangeName](config.default);
+        store.commit("setExchange", exchange);
+
+        return new DataProvider(exchange);
     }
 
     onGetMarks(callback) {
-        this._onGetMarksCallback = callback
+        this.onGetMarksCallback = callback
     }
 
     onReady = async (callback) => {
@@ -33,11 +41,9 @@ export default class DataProvider {
 
     searchSymbols = async (userInput, exchange, symbolType, onResultReadyCallback) => {
         const search = async () => {
-            const exchangeObj = new ccxt[exchange]({ enableRateLimit: true })
-            const markets = await exchangeObj.loadMarkets()
+            const markets = await this.exchange.loadMarkets();
             const symbols = Object.values(markets)
-                .filter(market => market.type === symbolType)
-                .filter(market => market.symbol.toUpperCase().includes(userInput.toUpperCase()))
+                .filter(market => market.id.toUpperCase().includes(userInput.toUpperCase()))
                 .map(market => ({
                     symbol: market.symbol,
                     full_name: market.symbol,
@@ -46,6 +52,7 @@ export default class DataProvider {
                     type: symbolType,
                     ticker: market.symbol,
                 }))
+
             onResultReadyCallback(symbols)
         }
 
@@ -63,7 +70,7 @@ export default class DataProvider {
             onSymbolResolvedCallback(symbolInfo)
         }
 
-        this._symbolsStorage.resolveSymbol(symbolName).then(onResultReady).catch(onError)
+        this.symbolsStorage.resolveSymbol(symbolName).then(onResultReady).catch(onError)
     }
 
     getBars = async (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
@@ -76,15 +83,15 @@ export default class DataProvider {
             to,
             countBack
         );
-        const exchange = new ccxt['bitmart'](config);
-        const timeframe = Object.keys(exchange.timeframes).find(key => exchange.timeframes[key] == resolution);
+
+        const timeframe = Object.keys(this.exchange.timeframes).find(key => this.exchange.timeframes[key] == resolution);
 
         if (countBack >= 500) {
             console.log('Requesting way to many bars, limiting', countBack);
             countBack = 450;
         }
 
-        const ohlcv = await exchange.fetchOHLCV(symbolInfo.ticker, timeframe, from, countBack, {
+        const ohlcv = await this.exchange.fetchOHLCV(symbolInfo.ticker, timeframe, from, countBack, {
             from: from,
             to: to,
         });
@@ -133,8 +140,8 @@ export default class DataProvider {
         //     const timeframe = this._resolutionToTimeframe(resolution)
 
         //     const callback = ({ timestamp, open, high, low, close, volume }) => {
-        //         if (this._subscribers[listenerGuid]) {
-        //             this._subscribers[listenerGuid].listener({
+        //         if (this.subscribers[listenerGuid]) {
+        //             this.subscribers[listenerGuid].listener({
         //                 time: timestamp,
         //                 open,
         //                 high,
@@ -145,7 +152,7 @@ export default class DataProvider {
         //         }
         //     }
         //     exchange.websocketSubscribe(market['id'], timeframe, callback)
-        //     this._subscribers[listenerGuid] = {
+        //     this.subscribers[listenerGuid] = {
         //         listener: onRealtimeCallback,
         //         channel: { symbol, resolution },
         //         callback
@@ -156,10 +163,10 @@ export default class DataProvider {
     }
 
     unsubscribeBars = async (listenerGuid) => {
-        // if (this._subscribers[listenerGuid]) {
+        // if (this.subscribers[listenerGuid]) {
         //     try {
         //         const exchange = await ccxt[this.currentMarket.exchange].new()
-        //         exchange.remove_listener(this._subscribers[listenerGuid].channel, this._subscribers[listenerGuid].callback)
+        //         exchange.remove_listener(this.subscribers[listenerGuid].channel, this.subscribers[listenerGuid].callback)
         //     } catch (error) {
         //         console.error("UnsubscribeBars error: ", error)
         //     }
@@ -171,8 +178,8 @@ export default class DataProvider {
     }
 
     getMarks(symbolInfo, from, to, onDataCallback, resolution) {
-        if (this._onGetMarksCallback) {
-            return this._onGetMarksCallback(symbolInfo, from, to, onDataCallback, resolution)
+        if (this.onGetMarksCallback) {
+            return this.onGetMarksCallback(symbolInfo, from, to, onDataCallback, resolution)
         }
     }
 

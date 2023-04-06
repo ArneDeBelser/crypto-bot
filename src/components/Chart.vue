@@ -3,48 +3,58 @@
         <v-card>
             <v-card-title>Chart</v-card-title>
             <v-card-text>
-                <div id="tv_chart_container" style="height: 85vh"></div>
+                <div id="tv_chart_container" style="height: 85vh" :key="componentKey"></div>
             </v-card-text>
         </v-card>
     </div>
 </template>
 
-<script>
-import { onMounted, defineProps } from "vue";
+<script setup>
+import { onMounted, ref } from "vue";
 import { widget } from "../../vendor/charting_library";
 import DataProvider from "../datafeed/data-provider";
+import eventBus from './eventBus.mjs';
 
-export default {
-    props: {
-        exchange: {
-            type: Object,
-        },
-    },
+const selectedMarketId = localStorage.getItem('selectedMarket') || 'BTC/USDT';
+const selectedInterval = localStorage.getItem('selectedInterval') || '4h';
+const datafeed = await DataProvider.create();
 
-    setup(props) {
-        onMounted(() => {
-            const widgetOptions = {
-                symbol: "BTC_USDT",
-                interval: "4h",
-                container: "tv_chart_container",
-                datafeed: new DataProvider(props.exchange),
-                library_path: "vendor/charting_library/",
-                autosize: true,
-                timezone: "Etc/UTC",
-                theme: "dark",
-                locale: "en",
-                client_id: "tradingview.com",
-                user_id: "public_user_id",
-            };
+console.log(selectedMarketId);
 
-            const tvWidget = new widget(widgetOptions);
+const componentKey = ref(0);
 
-            tvWidget.onChartReady(() => {
-                tvWidget.activeChart().dataReady(async () => {
-                    console.log("Chart Ready");
-                });
-            });
+onMounted(async () => {
+    // eventBus.on('refresh-chart', (payload) => {
+    //     console.log(payload);
+    // });
+
+    const widgetOptions = {
+        symbol: selectedMarketId,
+        interval: selectedInterval,
+        container: "tv_chart_container",
+        datafeed: datafeed,
+        library_path: "vendor/charting_library/",
+        autosize: true,
+        timezone: "Etc/UTC",
+        theme: "dark",
+        locale: "en",
+        client_id: "tradingview.com",
+        user_id: "public_user_id",
+    };
+
+    const tvWidget = new widget(widgetOptions);
+
+    tvWidget.onChartReady(() => {
+        const activeChart = tvWidget.activeChart();
+
+        activeChart.dataReady(async () => {
+            console.log("Chart Ready");
         });
-    },
-};
+
+        activeChart.onIntervalChanged().subscribe(null, (interval) => {
+            console.log(`Interval changed to ${interval}`);
+            localStorage.setItem('selectedInterval', interval);
+        });
+    });
+});
 </script>

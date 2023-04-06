@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import 'dotenv/config';
 
-class TelegramNotifier {
+export default class TelegramNotifier {
     constructor() {
         this.botToken = process.env.VITE_TELEGRAM_BOT_TOKEN;
         this.chatId = process.env.VITE_TELEGRAM_CHAT_ID;
@@ -26,5 +26,3 @@ class TelegramNotifier {
         }
     }
 }
-
-export default TelegramNotifier;

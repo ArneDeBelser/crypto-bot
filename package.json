@@ -2,9 +2,10 @@
   "name": "cryptalyze-bot",
   "version": "1.0.0",
   "description": "CryptAlyze Trading Bot",
-  "main": "src/index.js",
+  "main": "src/index.mjs",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"node cors &\" \"npm run bot\" \"vite\"",
+    "bot": "node src/bot.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -13,8 +14,9 @@
   "dependencies": {
     "@mdi/font": "^7.2.96",
     "ccxt": "^3.0.51",
+    "cors-anywhere": "^0.4.4",
+    "mitt": "^3.0.0",
     "node-fetch": "^3.3.1",
-    "uuid": "^9.0.0",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",
     "vuetify": "^3.1.4",
@@ -26,7 +28,7 @@
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@vitejs/plugin-vue": "^4.1.0",
-    "cors-anywhere": "^0.4.4",
+    "concurrently": "^8.0.1",
     "dotenv": "^16.0.3",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-css-only": "^4.3.0",
