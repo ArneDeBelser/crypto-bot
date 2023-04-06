@@ -3,7 +3,7 @@ import TelegramNotifier from '../helpers/TelegramNotifier.mjs';
 
 const notifier = new TelegramNotifier();
 
-function findLargePriceGaps(prices) {
+export const findLargePriceGaps = (prices) => {
     const priceRange = Math.max(...prices) - Math.min(...prices);
     const threshold = priceRange * 0.05; // 10% of the price range
     const gaps = [];
@@ -28,7 +28,7 @@ function findLargePriceGaps(prices) {
 }
 
 
-function addOrdersAboveGaps(orderBook, gaps, orderType) {
+export const addOrdersAboveGaps = (orderBook, gaps, orderType) => {
     const newOrders = [];
 
     gaps.forEach((gap) => {

@@ -1,11 +1,9 @@
 <template>
   <v-navigation-drawer permanent>
     <v-list color="transparent">
-      <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard"></v-list-item>
-      <v-list-item prepend-icon="mdi-account-box" title="Account"></v-list-item>
-      <v-list-item prepend-icon="mdi-gavel" title="Admin"></v-list-item>
       <v-divider></v-divider>
-      <v-list-item v-for="market in markets" :key="market.symbol" @click="onMarketClick(market)">
+      <v-text-field v-model="search" :label="'Search'" outlined dense style="position: sticky;"></v-text-field>
+      <v-list-item v-for="market in paginatedMarkets" :key="market.symbol" @click="onMarketClick(market)">
         <v-list-item-title>{{ market.symbol }}</v-list-item-title>
       </v-list-item>
     </v-list>
@@ -19,25 +17,43 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed, getCurrentInstance } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useStore } from 'vuex';
 import eventBus from './eventBus.mjs';
 
-const instance = getCurrentInstance();
 const markets = ref([]);
-
 const exchange = computed(() => {
-  return instance.appContext.config.globalProperties.$store.state.exchange;
+  return store.state.exchange;
 });
 
-onMounted(async () => {
-  // await exchange.value.loadMarkets();
-  // console.log(exchange.value);
-  // markets.value = Object.values(exchange.value.markets);
+const store = useStore();
+const search = ref('');
+const page = ref(0);
+const pageSize = ref(50);
+
+const filteredMarkets = computed(() => {
+  return markets.value.filter(market => market.symbol.includes(search.value.toUpperCase()));
 });
 
-function onMarketClick(market) {
-  console.log('Clicked on ', market.symbol);
+const paginatedMarkets = computed(() => {
+  const startIndex = page.value * pageSize.value;
+  const endIndex = (page.value + 1) * pageSize.value;
+  return filteredMarkets.value.slice(startIndex, endIndex);
+});
+
+const onMarketClick = (market) => {
+  console.log(market.symbol);
   localStorage.setItem('selectedMarket', market.id);
-  eventBus.emit('refresh-chart');
-}
+  // eventBus.emit('refresh-chart');
+  location.reload();
+
+};
+
+onMounted(() => {
+  setTimeout(async () => {
+    await exchange.value.loadMarkets();
+    markets.value = Object.values(exchange.value.markets);
+  }, 1000)
+});
+
 </script>

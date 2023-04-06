@@ -26,9 +26,9 @@ export default defineComponent({
     name: "App",
 
     components: {
+        Chart,
         TopBar,
         Sidebar,
-        Chart,
         Orderbook,
     },
 });

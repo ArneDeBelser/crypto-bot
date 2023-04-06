@@ -29,7 +29,7 @@ export default class SymbolsStorage {
                 ticker: symbolName,
                 supported_resolutions: SUPPORTED_RESOLUTIONS,
                 minmov: 1,
-                pricescale: precision.price,
+                pricescale: 1000000000,
                 session: "24x7",
                 timezone: timezone,
                 has_intraday: true,

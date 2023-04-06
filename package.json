@@ -17,6 +17,7 @@
     "cors-anywhere": "^0.4.4",
     "mitt": "^3.0.0",
     "node-fetch": "^3.3.1",
+    "stream-browserify": "^3.0.0",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",
     "vuetify": "^3.1.4",
