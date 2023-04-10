@@ -1,34 +1,59 @@
-/* Exchange */
-import ccxt from 'ccxt';
-import 'dotenv/config';
-const exchangeName = "bitmart";
-const config = await import(
-    `./exchanges/${exchangeName}/configBot.mjs`
-);
-const exchange = new ccxt[exchangeName](config.default);
+const wait = 5000;
 
-async function runBotCycle() {
-    // Execute bot logic here
-    console.log("Bot running through cycle...");
-    // throw new Error("Sample error");
+import { config, getPairConfig } from './config/pairs.mjs';
 
-    // Wait for a certain amount of time before running again
-    // await new Promise((resolve) => setTimeout(resolve, 5000));
+async function runBotCycle(pairConfig) {
+    console.log(`${logName(pairConfig)} Bot running through cycle`);
+    // Run your strategy logic here
 }
 
 async function startBot() {
-    console.log("Starting bot ...");
+    console.log("Starting bot");
 
-    while (true) {
-        try {
-            await runBotCycle();
-        } catch (error) {
-            console.error("Bot cycle failed:", error);
+    // Create a queue of pairs to process
+    const queue = config.map((pairConfig) => ({
+        pairConfig,
+        lastRunTime: 0,
+        interval: pairConfig.interval,
+    }));
+
+    while (queue.length > 0) {
+        const { pairConfig, lastRunTime, interval } = queue.shift();
+        const timeSinceLastRun = Date.now() - lastRunTime;
+
+        if (timeSinceLastRun >= interval) {
+            try {
+                await runBotCycle(pairConfig);
+                console.log(`${logName(pairConfig)} Bot completed cycle`);
+            } catch (error) {
+                console.error(`${logName(pairConfig)} Bot cycle failed:`, error);
+            }
+            // Update last run time for pair
+            queue.push({
+                pairConfig,
+                lastRunTime: Date.now(),
+                interval: pairConfig.interval,
+            });
+        } else {
+            // Add pair back to queue with adjusted interval
+            const delay = Math.max(0, interval - timeSinceLastRun);
+            queue.push({
+                pairConfig,
+                lastRunTime,
+                interval: pairConfig.interval, // Use pairConfig.interval instead of delay
+            });
+            console.log(`${logName(pairConfig)} Bot waiting \x1b[36m${Math.floor(delay / 1000 / 60)}m${Math.floor(delay / 1000) % 60}s\x1b[0m before running next cycle`);
         }
 
-        // Wait for a certain amount of time before running the next cycle
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        // Wait before processing the next pair in the queue
+        await new Promise((resolve) => setTimeout(resolve, wait));
     }
+
+    console.log("Bot has completed all cycles");
+}
+
+function logName(pairConfig) {
+    return `\x1b[33m[\x1b[32m${pairConfig.name}\u001b[37;1m:\u001b[31;1m${pairConfig.exchange}\u001b[37;1m:\u001b[34;1m${pairConfig.strategy}\x1b[33m]\x1b[0m`;
 }
 
 startBot();

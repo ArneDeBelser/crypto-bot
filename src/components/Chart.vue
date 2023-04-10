@@ -53,7 +53,6 @@ export default {
             client_id: "tradingview.com",
             user_id: "public_user_id",
             theme: "dark",
-            custom_css_url: "./themed.css",
             overrides: chartOverrides,
         };
 
@@ -63,15 +62,15 @@ export default {
             const activeChart = tvWidget.activeChart();
 
             activeChart.dataReady(async () => {
-                console.log("Chart Ready");
-                const bids = parse(this.orderBook).bids;
-                const gaps = await this.findLargePriceGaps(this.getZeroValues(bids));
-                const orders = this.addOrdersAboveGaps(gaps, 'buy');
+                // console.log("Chart Ready");
+                // const bids = parse(this.orderBook).bids;
+                // const gaps = await this.findLargePriceGaps(this.getZeroValues(bids));
+                // const orders = this.addOrdersAboveGaps(gaps, 'buy');
 
-                orders.forEach(order => {
-                    this.createOrderLine(activeChart, order, 100, "limit", "buy");
-                })
-                console.log(orders);
+                // orders.forEach(order => {
+                //     this.createOrderLine(activeChart, order, 100, "limit", "buy");
+                // })
+                // console.log(orders);
             });
 
             activeChart.onIntervalChanged().subscribe(null, (interval) => {
@@ -147,15 +146,6 @@ export default {
             return arr.map(function (innerArr) {
                 return innerArr[0];
             });
-        },
-
-        getParameterByName(name) {
-            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                results = regex.exec(location.search);
-            return results === null
-                ? ""
-                : decodeURIComponent(results[1].replace(/\+/g, " "));
         },
     }
 };

@@ -1,4 +1,4 @@
-import { candlesBigMoveDown, candlesBigMoveUp, candlesNoMove } from "./data/bigmove-data.mjs";
+import { candlesBigMoveDown, candlesBigMoveUp, candlesNoMove } from "../data/bigmove-data.mjs";
 
 const candles = candlesNoMove;
 

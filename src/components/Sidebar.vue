@@ -2,10 +2,12 @@
   <v-navigation-drawer permanent>
     <v-list color="transparent">
       <v-divider></v-divider>
+      <v-pagination v-model="page" :length="totalPages" style="align-self: flex-end"></v-pagination>
       <v-text-field v-model="search" :label="'Search'" outlined dense style="position: sticky;"></v-text-field>
       <v-list-item v-for="market in paginatedMarkets" :key="market.symbol" @click="onMarketClick(market)">
         <v-list-item-title>{{ market.symbol }}</v-list-item-title>
       </v-list-item>
+      <v-pagination v-model="page" :length="totalPages"></v-pagination>
     </v-list>
 
     <template v-slot:append>
@@ -35,6 +37,10 @@ const filteredMarkets = computed(() => {
   return markets.value.filter(market => market.symbol.includes(search.value.toUpperCase()));
 });
 
+const totalPages = computed(() => {
+  return Math.ceil(filteredMarkets.value.length / pageSize.value);
+});
+
 const paginatedMarkets = computed(() => {
   const startIndex = page.value * pageSize.value;
   const endIndex = (page.value + 1) * pageSize.value;
@@ -46,7 +52,6 @@ const onMarketClick = (market) => {
   localStorage.setItem('selectedMarket', market.id);
   // eventBus.emit('refresh-chart');
   location.reload();
-
 };
 
 onMounted(() => {
@@ -55,5 +60,4 @@ onMounted(() => {
     markets.value = Object.values(exchange.value.markets);
   }, 1000)
 });
-
 </script>
