@@ -14,6 +14,7 @@ export function createOrdersTable() {
     const sql = `
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY,
+      exchange TEXT,
       symbol TEXT,
       price_avg REAL,
       cost REAL,
