@@ -2,6 +2,9 @@ import express from 'express';
 import { spawn } from 'child_process';
 import { startTelegramBot } from './TelegramBot.mjs';
 
+/* Database */
+import './database/database.mjs';
+
 const app = express();
 const botPath = './src/bot.mjs';
 

@@ -43,4 +43,7 @@ export default {
             protocolImports: true,
         }),
     ],
+    optimizeDeps: {
+        exclude: ['aws-sdk']
+    }
 };

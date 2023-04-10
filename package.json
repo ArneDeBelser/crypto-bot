@@ -5,6 +5,8 @@
   "main": "src/index.mjs",
   "scripts": {
     "dev": "concurrently \"node cors &\" \"vite\"",
+    "devssl": "concurrently \"npm run https-dev -- --https-port=8443 --https-key=./key.pem --https-cert=./cert.pem\" \"vite\"",
+    "https-dev": "node cors.js",
     "devserver": "concurrently \"node cors &\" \"npm run server\" \"vite\"",
     "devbot": "concurrently \"node cors &\" \"npm run bot\" \"vite\"",
     "server": "\"start cmd /c node ./src/server.mjs\"",
@@ -27,6 +29,7 @@
     "node-cron": "^3.0.2",
     "node-fetch": "^3.3.1",
     "node-telegram-bot-api": "^0.61.0",
+    "sqlite3": "^5.1.6",
     "stream-browserify": "^3.0.0",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",
@@ -47,5 +50,8 @@
     "vite": "^4.2.1",
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-node-polyfills": "^0.7.0"
+  },
+  "dynamicImportTargets": {
+    "aws-sdk": "import"
   }
 }

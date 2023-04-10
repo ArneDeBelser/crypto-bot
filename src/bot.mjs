@@ -1,10 +1,15 @@
 const wait = 5000;
 
-import { config, getPairConfig } from './config/pairs.mjs';
+import { config } from './config/pairs.mjs';
+import { logName } from './helpers/botHelpers.mjs';
 
 async function runBotCycle(pairConfig) {
     console.log(`${logName(pairConfig)} Bot running through cycle`);
-    // Run your strategy logic here
+
+    const strategyModule = await import(`./strategies/${pairConfig.strategy}.mjs`);
+    const strategy = strategyModule.default;
+
+    await strategy(pairConfig);
 }
 
 async function startBot() {
@@ -50,10 +55,6 @@ async function startBot() {
     }
 
     console.log("Bot has completed all cycles");
-}
-
-function logName(pairConfig) {
-    return `\x1b[33m[\x1b[32m${pairConfig.name}\u001b[37;1m:\u001b[31;1m${pairConfig.exchange}\u001b[37;1m:\u001b[34;1m${pairConfig.strategy}\x1b[33m]\x1b[0m`;
 }
 
 startBot();

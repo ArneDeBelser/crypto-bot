@@ -86,37 +86,6 @@ setInterval(async () => {
     }
 }, 5000);
 
-const clearMessages = async () => {
-    try {
-        const chat = await telegram.getChat(chatId);
-        const pinnedMessageId = chat.pinned_message?.message_id;
-
-        const messagesToDelete = [
-            "The bot is currently Running.",
-            "Bot started via Telegram command.",
-            "Bot stopped via Telegram command.",
-        ];
-        const history = await telegram.getChat(chatId, { limit: 100 });
-        const messages = history?.messages?.filter(
-            (message) =>
-                messagesToDelete.includes(message.text) && message.message_id !== pinnedMessageId
-        );
-
-        if (messages?.length > 0) {
-            const deletePromises = messages.map((message) =>
-                telegram.deleteMessage(chatId, message.message_id)
-            );
-            await Promise.all(deletePromises);
-        }
-    } catch (error) {
-        console.error("Error clearing messages:", error);
-    }
-};
-
-setInterval(async () => {
-    await clearMessages();
-}, 5 * 1000); // every minute
-
 // apiPollBotStatus();
 
 export default bot;
