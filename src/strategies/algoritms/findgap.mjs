@@ -1,7 +1,4 @@
 import { orderBook, orderBook2 } from "../data/findgap-data.mjs";
-import TelegramNotifier from '../../helpers/TelegramNotifier.mjs';
-
-// const notifier = new TelegramNotifier();
 
 export const findLargePriceGaps = (prices) => {
     const priceRange = Math.max(...prices) - Math.min(...prices);

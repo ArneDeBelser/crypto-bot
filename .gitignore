@@ -6,3 +6,5 @@
 # Files
 .env
 package-lock.json
+cert.pem
+key.pem

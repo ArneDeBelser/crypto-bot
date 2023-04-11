@@ -18,7 +18,7 @@ export default class DataProvider {
         console.log('Setting up exchange');
         const exchangeName = "bitmart";
         const config = await import(
-            `../exchanges/${exchangeName}/configApp.mjs`
+            `../exchanges/${exchangeName}/config/web.mjs`
         );
         const exchange = new ccxt[exchangeName](config.default);
         store.commit("setExchange", exchange);
