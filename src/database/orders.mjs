@@ -54,11 +54,12 @@ export async function insertOrder(order, exchange) {
     });
 }
 
-export async function getAllOrdersByPair(pair) {
+export async function getAllOrdersByPair(exchange, pair) {
+    pair = pair.replace('_', '/');
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM orders WHERE pair = ?`;
+        const sql = `SELECT * FROM orders WHERE exchange = ? AND symbol = ?`;
 
-        db.all(sql, [pair], (err, rows) => {
+        db.all(sql, [exchange, pair], (err, rows) => {
             if (err) {
                 reject(err);
             } else {

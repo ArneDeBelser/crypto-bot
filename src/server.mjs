@@ -1,6 +1,9 @@
 import express from 'express';
 import { spawn } from 'child_process';
+import { config } from './config/pairs.mjs';
 import { startTelegramBot } from './TelegramBot.mjs';
+import { getPairConfig } from './helpers/pairConfig.mjs';
+import { getAllOrdersByPair } from './database/orders.mjs';
 
 /* Database */
 import './database/database.mjs';
@@ -72,6 +75,52 @@ app.get('/api/bot-status', async (req, res) => {
     // Get the bot status
     const status = isBotRunning() ? 'Running' : 'Stopped';
     res.send({ status });
+});
+
+app.get('/api/get-orders/:exchange/:pair', async (req, res) => {
+    const exchange = req.params.exchange;
+    const pair = req.params.pair;
+
+    try {
+        // Query the database for the orders
+        const orders = await getAllOrdersByPair(exchange, pair);
+
+        res.send({ orders });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Unable to fetch orders' });
+    }
+});
+
+
+app.get('/api/get-orders/:exchange/:pair', async (req, res) => {
+    const exchange = req.params.exchange;
+    const pair = req.params.pair;
+
+    try {
+        // Query the database for the orders
+        const orders = await getAllOrdersByPair(exchange, pair);
+
+        res.send({ orders });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Unable to fetch orders' });
+    }
+});
+
+app.get('/api/test-strategy/:pair', async (req, res) => {
+    const pair = req.params.pair.replace('_', '/');
+
+    try {
+        const [pairConfig, strategyModule] = await getPairConfig(config, pair);
+        const strategy = strategyModule.default;
+        const orders = await strategy(pairConfig, pair);
+
+        res.send({ orders });
+    } catch (error) {
+        console.error(error);
+        res.status(422).json({ error: error.message });
+    }
 });
 
 const port = 3000;

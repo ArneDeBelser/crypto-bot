@@ -1,10 +1,10 @@
+import { config } from './config/pairs.mjs';
+import { logSymbol } from './helpers/botHelpers.mjs';
+
 const wait = 5000;
 
-import { config } from './config/pairs.mjs';
-import { logName } from './helpers/botHelpers.mjs';
-
 async function runBotCycle(pairConfig) {
-    console.log(`${logName(pairConfig)} Bot running through cycle`);
+    console.log(`${logSymbol(pairConfig)} Bot running through cycle`);
 
     const strategyModule = await import(`./strategies/${pairConfig.strategy}.mjs`);
     const strategy = strategyModule.default;
@@ -15,12 +15,14 @@ async function runBotCycle(pairConfig) {
 async function startBot() {
     console.log("Starting bot");
 
-    // Create a queue of pairs to process
-    const queue = config.map((pairConfig) => ({
-        pairConfig,
-        lastRunTime: 0,
-        interval: pairConfig.interval,
-    }));
+    // Create a queue of pairs to process, but exclude default ignore pairs
+    const queue = config
+        .filter(pairConfig => !pairConfig.ignore) // exclude all pairConfig where ignore = true
+        .map(pairConfig => ({
+            pairConfig,
+            lastRunTime: 0,
+            interval: pairConfig.interval,
+        }));
 
     while (queue.length > 0) {
         const { pairConfig, lastRunTime, interval } = queue.shift();
@@ -29,9 +31,9 @@ async function startBot() {
         if (timeSinceLastRun >= interval) {
             try {
                 await runBotCycle(pairConfig);
-                console.log(`${logName(pairConfig)} Bot completed cycle`);
+                console.log(`${logSymbol(pairConfig)} Bot completed cycle`);
             } catch (error) {
-                console.error(`${logName(pairConfig)} Bot cycle failed:`, error);
+                console.error(`${logSymbol(pairConfig)} Bot cycle failed:`, error);
             }
             // Update last run time for pair
             queue.push({
@@ -47,7 +49,7 @@ async function startBot() {
                 lastRunTime,
                 interval: pairConfig.interval, // Use pairConfig.interval instead of delay
             });
-            console.log(`${logName(pairConfig)} Bot waiting \x1b[36m${Math.floor(delay / 1000 / 60)}m${Math.floor(delay / 1000) % 60}s\x1b[0m before running next cycle`);
+            console.log(`${logSymbol(pairConfig)} Bot waiting \x1b[36m${Math.floor(delay / 1000 / 60)}m${Math.floor(delay / 1000) % 60}s\x1b[0m before running next cycle`);
         }
 
         // Wait before processing the next pair in the queue

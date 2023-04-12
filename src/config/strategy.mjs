@@ -1,12 +1,13 @@
 export const strategyConfigs = {
-    ab10percent: {
-    },
-    ab10percent: {
-        parameter1: '',
-        parameter2: '',
-    },
-    absmallgains: {
-        parameter1: '',
-        parameter2: '',
+    ab: {
+        gapThresholdMulitplier: {
+            defaultValue: 0.1,
+        },
+        highestPriceModifier: {
+            defaultValue: 0.99,
+        },
+        lowestPriceModifier: {
+            defaultValue: 1.01,
+        },
     },
 };

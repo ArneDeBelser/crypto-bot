@@ -1,17 +1,26 @@
 export const config = [
     {
-        name: 'BITBOY/USDT',
+        symbol: 'default',
         exchange: 'bitmart',
         strategy: 'ab',
-        parameter1: '',
-        interval: 0.5 * 60 * 1000
+        gapThresholdMulitplier: 0.01,
+        interval: 15 * 60 * 1000,
+        ignore: true,
+    },
+    {
+        symbol: 'BITBOY/USDT',
+        exchange: 'bitmart',
+        strategy: 'ab',
+        gapThresholdMulitplier: 0.05,
+        interval: 15 * 60 * 1000,
+        ignore: false,
+    },
+    {
+        symbol: 'APL/USDT',
+        exchange: 'bitmart',
+        strategy: 'ab',
+        gapThresholdMulitplier: 0.05,
+        interval: 15 * 60 * 1000,
+        ignore: false,
     },
 ];
-
-// export const getPairConfig = (pairName, exchangeName) => {
-//     const pairConfig = config.find(
-//         (config) => config.name === pairName && config.exchange === exchangeName
-//     );
-//     const strategyConfig = strategyConfigs[pairConfig.strategy];
-//     return { ...strategyConfig, ...pairConfig };
-// }

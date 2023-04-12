@@ -52,6 +52,8 @@
     "vite-plugin-node-polyfills": "^0.7.0"
   },
   "dynamicImportTargets": {
+    "mock-aws-s3": "import",
+    "nock": "import",
     "aws-sdk": "import"
   }
 }
