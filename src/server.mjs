@@ -112,6 +112,7 @@ app.get('/api/test-strategy/:pair', async (req, res) => {
     const pair = req.params.pair.replace('_', '/');
 
     try {
+        console.log(`Running test for ${pair}`);
         const [pairConfig, strategyModule] = await getPairConfig(config, pair);
         const strategy = strategyModule.default;
         const orders = await strategy(pairConfig, pair);

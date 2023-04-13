@@ -21,7 +21,9 @@ export default class SymbolsStorage {
 
             // Get the market and precision price
             const market = this.exchange.market(symbolName);
-            const { precision } = market;
+            const precision = parseFloat(
+                "1" + "0".repeat(market.info.price_max_precision)
+            )
 
             this.history[symbolName] = {
                 name: symbolName,
@@ -29,7 +31,7 @@ export default class SymbolsStorage {
                 ticker: symbolName,
                 supported_resolutions: SUPPORTED_RESOLUTIONS,
                 minmov: 1,
-                pricescale: 10000000000,
+                pricescale: precision,
                 session: "24x7",
                 timezone: timezone,
                 has_intraday: true,
@@ -42,4 +44,9 @@ export default class SymbolsStorage {
             console.error("Could not load symbol", error);
         }
     }
+}
+
+function getPrecisionPriceScale(num) {
+    let zerosToAdd = num - 1;
+    return 10 ** zerosToAdd;
 }

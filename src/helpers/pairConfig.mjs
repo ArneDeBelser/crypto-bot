@@ -4,11 +4,7 @@ export const getPairConfig = async (config, pair) => {
 
     // Import the strategy module and run the strategy
     let strategyModule;
-    try {
-        strategyModule = await import(`../strategies/${pairConfig.strategy}.mjs`);
-    } catch (error) {
-        throw new Error('There is no defined strategy for this pair.');
-    }
+    strategyModule = await import(`../strategies/${pairConfig.strategy.identifier}.mjs`);
 
     return [
         pairConfig,
@@ -17,6 +13,31 @@ export const getPairConfig = async (config, pair) => {
 }
 
 function getConfig(configArr, key, value) {
-    const config = configArr.find(config => config[key] === value);
-    return config ? config : configArr.find(config => config.symbol == 'default');
+    // console.log(`getConfig: Searching for ${key}=${value} in configArr`, configArr);
+
+    // Find the first configuration object in the array that has a property with the given key and value
+    const matchingConfig = configArr.find(function (config) {
+        return config[key] === value;
+    });
+
+    // If a matching configuration was found, return it
+    if (matchingConfig) {
+        // console.log(`getConfig: Found matching config:`, matchingConfig);
+        return matchingConfig;
+    }
+
+    // If no matching configuration was found, look for a default configuration
+    const defaultConfig = configArr.find(function (config) {
+        return config.symbol === 'default';
+    });
+
+    // If a default configuration was found, return it
+    if (defaultConfig) {
+        // console.log(`getConfig: Using default config:`, defaultConfig);
+        return defaultConfig;
+    }
+
+    // If no default configuration was found, return undefined
+    //  console.log(`getConfig: No matching config or default config found`);
+    return undefined;
 }

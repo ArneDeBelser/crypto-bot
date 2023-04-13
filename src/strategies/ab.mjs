@@ -1,55 +1,44 @@
-import { logSymbol, fetchOrders } from "../helpers/botHelpers.mjs";
-import { findPriceGaps, addOrdersInGaps } from "./algoritms/findgap.mjs";
 import { strategyConfigs } from "../config/strategy.mjs";
+import { logSymbol, fetchOrders, fetchOrderBook, fetchKlines, mapBidAsks } from "../helpers/botHelpers.mjs";
+import { filterNumbersWithinXPercentage } from "./algoritms/filternumberswithinxpercentage.mjs";
+import { filterCloseToCurrentPrice } from "./algoritms/filterclosetocurrentprice.mjs";
 
-export default async function abStrategy(pairConfig, pair = undefined) {
-  console.log(`${logSymbol(pairConfig)} Running "ab.mjs" strategy`);
-
-  // This little check just makes sure that if we are testing a pairconfig with "default", the pair is set to the symbol that is being tested at the given moment
-  if (pair !== undefined) {
-    pairConfig.symbol = pair;
-  }
-
-  // Fetch new orders
-  fetchOrders(pairConfig);
+export default async function strategy(pairConfig, pair) {
+  console.log(`${logSymbol(pairConfig)} Running "ab" strategy`);
 
   // Setup strategy parameters
-  const gapThresholdMulitplier = pairConfig.gapThresholdMulitplier || strategyConfigs.ab.gapThresholdMulitplier.defaultValue;
-  const highestPriceModifier = pairConfig.highestPriceModifier || strategyConfigs.ab.highestPriceModifier.defaultValue;
-  const lowestPriceModifier = pairConfig.lowestPriceModifier || strategyConfigs.ab.lowestPriceModifier.defaultValue;
+  const closeToCurrentPricePercentageAsk = pairConfig.strategy.closeToCurrentPricePercentageAsk || strategyConfigs.ab.closeToCurrentPricePercentageAsk.defaultValue;
+  const closeToCurrentPricePercentageBid = pairConfig.strategy.closeToCurrentPricePercentageBid || strategyConfigs.ab.closeToCurrentPricePercentageBid.defaultValue;
+  const filterAskThreshold = pairConfig.strategy.filterAskThreshold || strategyConfigs.ab.filterAskThreshold.defaultValue;
+  const filterBidThreshold = pairConfig.strategy.filterBidThreshold || strategyConfigs.ab.filterBidThreshold.defaultValue;
 
-  // Fetch orderbook
-  let orderBook = null;
-  try {
-    const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
-    const exchange = exchangeObject.default;
-    orderBook = await exchange.fetchOrderBook(pairConfig.symbol);
-  } catch (error) {
-    console.log(error);
-    throw new Error('Something went wrong while fetching the orderbook');
-  }
+  // Fetching all the required data
+  // Fetch new orders
+  await fetchOrders(pairConfig, pair);
+  // Fetch orderbook 
+  const orderBook = await fetchOrderBook(pairConfig, pair);
 
   // Map bids and asks
-  const bidsAndAsks = Object.entries(orderBook)
-    .reduce((acc, [key, value]) => {
-      if (key === 'bids' || key === 'asks') {
-        const mappedArray = value.map(([price]) => price);
-        acc[key] = mappedArray;
-      }
-      return acc;
-    }, {});
-
+  const bidsAndAsks = await mapBidAsks(orderBook);
+  const asks = bidsAndAsks.asks.reverse();
   const bids = bidsAndAsks.bids;
-  const asks = bidsAndAsks.asks;
 
   // Run strategy
-  // Loop through bids and print out the first element
-  const askGaps = findPriceGaps(asks, gapThresholdMulitplier);
-  const askOrders = addOrdersInGaps(askGaps, "sell", highestPriceModifier, lowestPriceModifier);
+  // Filter out orders too close to current price
+  let askOrders = filterCloseToCurrentPrice(closeToCurrentPricePercentageAsk, orderBook.asks[0][0], asks, "up");
+  let bidOrders = filterCloseToCurrentPrice(closeToCurrentPricePercentageBid, orderBook.bids[0][0], bids, "down");
 
-  // Loop through asks and print out the first element
-  const bidGaps = findPriceGaps(bids, gapThresholdMulitplier);
-  const bidOrders = addOrdersInGaps(bidGaps, "buy", highestPriceModifier, lowestPriceModifier);
+  // Filter out nubers within x percentage of eachother
+  askOrders = filterNumbersWithinXPercentage(askOrders, filterAskThreshold);
+  bidOrders = filterNumbersWithinXPercentage(bidOrders, filterBidThreshold);
+
+  // Get the last 5 asks 
+  askOrders = askOrders.slice(-5);
+  // Get the first 5 bids
+  bidOrders = bidOrders.slice(0, 5);
+
+  // Never put a sell order below currentprice
+  // Never put a buy order above current price
 
   // This part is needed for testing the strategy, the actual bot doesn't use this part
   return {

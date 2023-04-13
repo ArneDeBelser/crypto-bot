@@ -21,7 +21,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
-import eventBus from './eventBus.mjs';
 
 const markets = ref([]);
 const exchange = computed(() => {

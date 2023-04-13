@@ -1,6 +1,6 @@
-import SymbolsStorage from "./symbol-storage";
-import store from '../store.mjs';
 import ccxt from 'ccxt';
+import store from '../store.mjs';
+import SymbolsStorage from "./symbol-storage";
 
 export const SUPPORTED_RESOLUTIONS = ["1", "2", "3", "5", "10", "15", "30", "60", "120", "240", "360", "720", "D", "1D", "3D", "W", "1W", "2W", "1M"];
 

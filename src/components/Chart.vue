@@ -8,7 +8,7 @@
             </v-toolbar>
             <v-card-text>
                 <keep-alive :key="componentKey">
-                    <div id="tv_chart_container" style="height: 85vh"></div>
+                    <div id="tv_chart_container" style="height: 82vh"></div>
                 </keep-alive>
             </v-card-text>
         </v-card>
@@ -18,10 +18,10 @@
 <script>
 import axios from 'axios';
 import { mapState } from "vuex";
-import chartOverrides from "./overrides.mjs";
+import chartOverrides from "./helpers/overrides.mjs";
 import DataProvider from "../datafeed/data-provider";
-import { widget } from "../../vendor/charting_library";
-import { drawArrow, drawOrderLine, drawTestOrderLine } from './chartingFunctions.mjs';
+import { widget } from "../vendor/charting_library";
+import { drawArrow, drawOrderLine, drawTestOrderLine } from './helpers/chartingFunctions.mjs';
 
 const appUrl = import.meta.env.VITE_SERVER_URL;
 const datafeed = await DataProvider.create();
@@ -58,7 +58,7 @@ export default {
             interval: this.selectedInterval,
             container: "tv_chart_container",
             datafeed: datafeed,
-            library_path: "vendor/charting_library/",
+            library_path: "./src/vendor/charting_library/",
             autosize: true,
             timezone: "Etc/UTC",
             theme: "dark",

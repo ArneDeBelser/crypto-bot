@@ -1,5 +1,3 @@
-// import { orderBook, orderBook2 } from "../data/findgap-data.mjs";
-
 export const findPriceGaps = (prices, gapThresholdMulitplier) => {
     const priceRange = Math.max(...prices) - Math.min(...prices);
     const threshold = priceRange * gapThresholdMulitplier;
@@ -21,6 +19,8 @@ export const findPriceGaps = (prices, gapThresholdMulitplier) => {
         }
     }
 
+    if (gaps.length == 0) console.log('No price gaps found');
+
     return gaps;
 }
 
@@ -40,16 +40,8 @@ export const addOrdersInGaps = (gaps, orderType, highestPriceModifier, lowestPri
 
         // console.log(`Adding ${orderType} order at ${price}`);
         newOrders.push(price);
+        // newOrders.push(convertScientificToFloat(price));
     });
 
     return newOrders;
 }
-
-// // Find large price gaps
-// const gaps = findLargePriceGaps(orderBook2);
-
-// // Add orders above the gaps
-// const newOrderBook = addOrdersAboveGaps(orderBook2, gaps, "buy");
-
-// // Log the updated order book
-// console.log(newOrderBook);

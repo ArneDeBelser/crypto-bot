@@ -6,10 +6,10 @@ const wait = 5000;
 async function runBotCycle(pairConfig) {
     console.log(`${logSymbol(pairConfig)} Bot running through cycle`);
 
-    const strategyModule = await import(`./strategies/${pairConfig.strategy}.mjs`);
+    const strategyModule = await import(`./strategies/${pairConfig.strategy.identifier}.mjs`);
     const strategy = strategyModule.default;
 
-    await strategy(pairConfig);
+    await strategy(pairConfig, pairConfig.symbol);
 }
 
 async function startBot() {
