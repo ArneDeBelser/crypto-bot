@@ -1,6 +1,7 @@
 import ccxt from 'ccxt';
 import store from '../store.mjs';
 import SymbolsStorage from "./symbol-storage";
+import { resolutionToTimeframe } from './map-timeframes.js';
 
 export const SUPPORTED_RESOLUTIONS = ["1", "2", "3", "5", "10", "15", "30", "60", "120", "240", "360", "720", "D", "1D", "3D", "W", "1W", "2W", "1M"];
 
@@ -16,7 +17,7 @@ export default class DataProvider {
 
     static async create() {
         console.log('Setting up exchange');
-        const exchangeName = "bitmart";
+        const exchangeName = localStorage.getItem('selectedExchange') || 'bitmart';
         const config = await import(
             `../exchanges/${exchangeName}/config/web.mjs`
         );
@@ -84,17 +85,25 @@ export default class DataProvider {
             countBack
         );
 
-        const timeframe = Object.keys(this.exchange.timeframes).find(key => this.exchange.timeframes[key] == resolution);
-
         if (countBack >= 500) {
             console.log('Requesting way to many bars, limiting', countBack);
             countBack = 450;
         }
 
-        const ohlcv = await this.exchange.fetchOHLCV(symbolInfo.ticker, timeframe, from, countBack, {
-            from: from,
-            to: to,
-        });
+        let ohlcv;
+
+        if (localStorage.getItem('selectedExchange') == 'bitmart') {
+            const timeframe = Object.keys(this.exchange.timeframes).find(key => this.exchange.timeframes[key] == resolution);
+
+            ohlcv = await this.exchange.fetchOHLCV(symbolInfo.ticker, timeframe, from, countBack, {
+                from: from,
+                to: to,
+            });
+        }
+
+        if (localStorage.getItem('selectedExchange') == 'probit') {
+            ohlcv = await this.exchange.fetchOHLCV(symbolInfo.ticker, resolutionToTimeframe(resolution), from * 1000, countBack, {});
+        }
 
         const bars = ohlcv.map(([time, open, high, low, close, volume]) => ({
             time: time,

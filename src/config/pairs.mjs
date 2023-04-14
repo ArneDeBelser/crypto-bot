@@ -57,4 +57,14 @@ export const config = [
             filterBidThreshold: 0.1,
         },
     },
+
+    {
+        symbol: 'default',
+        exchange: 'probit',
+        interval: 60 * 60 * 1000,
+        ignore: true,
+        strategy: {
+            identifier: 'ab',
+        },
+    },
 ];

@@ -77,9 +77,9 @@ app.get('/api/bot-status', async (req, res) => {
     res.send({ status });
 });
 
-app.get('/api/get-orders/:exchange/:pair', async (req, res) => {
+app.get('/api/get-orders/:exchange', async (req, res) => {
     const exchange = req.params.exchange;
-    const pair = req.params.pair;
+    const pair = req.query.pair;
 
     try {
         // Query the database for the orders
@@ -94,10 +94,12 @@ app.get('/api/get-orders/:exchange/:pair', async (req, res) => {
 
 app.get('/api/test-strategy/:pair', async (req, res) => {
     const pair = req.params.pair.replace('_', '/');
+    const exchange = req.query.exchange;
 
     try {
         console.log(`Running test for ${pair}`);
-        const [pairConfig, strategyModule] = await getPairConfig(config, pair);
+        const [pairConfig, strategyModule] = await getPairConfig(config, pair, exchange);
+        console.log(pairConfig);
         const strategy = strategyModule.default;
         const orders = await strategy(pairConfig, pair);
 

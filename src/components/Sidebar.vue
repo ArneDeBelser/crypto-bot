@@ -18,45 +18,53 @@
   </v-navigation-drawer>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useStore } from 'vuex';
+<script>
+import { mapState } from 'vuex';
 
-const markets = ref([]);
-const exchange = computed(() => {
-  return store.state.exchange;
-});
+export default {
+  computed: {
+    ...mapState({
+      exchange: state => state.exchange
+    }),
 
-const store = useStore();
-const search = ref('');
-const page = ref(0);
-const pageSize = ref(50);
+    filteredMarkets() {
+      return this.markets.filter(market => market.symbol.includes(this.search.toUpperCase()));
+    },
 
-const filteredMarkets = computed(() => {
-  return markets.value.filter(market => market.symbol.includes(search.value.toUpperCase()));
-});
+    totalPages() {
+      return Math.ceil(this.filteredMarkets.length / this.pageSize);
+    },
 
-const totalPages = computed(() => {
-  return Math.ceil(filteredMarkets.value.length / pageSize.value);
-});
+    paginatedMarkets() {
+      const startIndex = this.page * this.pageSize;
+      const endIndex = (this.page + 1) * this.pageSize;
+      return this.filteredMarkets.slice(startIndex, endIndex);
+    }
+  },
 
-const paginatedMarkets = computed(() => {
-  const startIndex = page.value * pageSize.value;
-  const endIndex = (page.value + 1) * pageSize.value;
-  return filteredMarkets.value.slice(startIndex, endIndex);
-});
+  data() {
+    return {
+      page: 0,
+      pageSize: 50,
+      markets: [],
+      search: '',
+    };
+  },
 
-const onMarketClick = (market) => {
-  console.log(market.symbol);
-  localStorage.setItem('selectedMarket', market.id);
-  // eventBus.emit('refresh-chart');
-  location.reload();
+  methods: {
+    onMarketClick(market) {
+      console.log(market.symbol);
+      localStorage.setItem('selectedMarket', market.id);
+      // eventBus.emit('refresh-chart');
+      location.reload();
+    }
+  },
+
+  mounted() {
+    setTimeout(async () => {
+      await this.exchange.loadMarkets();
+      this.markets = Object.values(this.exchange.markets);
+    }, 1000);
+  }
 };
-
-onMounted(() => {
-  setTimeout(async () => {
-    await exchange.value.loadMarkets();
-    markets.value = Object.values(exchange.value.markets);
-  }, 1000)
-});
 </script>

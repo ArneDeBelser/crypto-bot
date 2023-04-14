@@ -18,6 +18,7 @@
 <script>
 import axios from 'axios';
 import { mapState } from "vuex";
+import { AuthenticationError } from 'ccxt';
 import chartOverrides from "./helpers/overrides.mjs";
 import DataProvider from "../datafeed/data-provider";
 import { widget } from "../vendor/charting_library";
@@ -35,8 +36,8 @@ export default {
             openOrders: [],
             userTrades: [],
             componentKey: 0,
-            exchange: 'bitmart',
             drawnOrderShapes: [],
+            exchange: localStorage.getItem('selectedExchange') || 'bitmart',
             selectedInterval: localStorage.getItem("selectedInterval") || "4h",
             selectedMarketId: localStorage.getItem("selectedMarket") || "BTC/USDT",
         }
@@ -111,7 +112,7 @@ export default {
     methods: {
         async fetchUserTrades() {
             try {
-                const response = await axios.get(`${appUrl}api/get-orders/${this.exchange}/${this.selectedMarketId}`);
+                const response = await axios.get(`${appUrl}api/get-orders/${this.exchange}?pair=${this.selectedMarketId}`);
                 this.userTrades = response.data.orders;
             } catch (error) {
                 console.error(error);
@@ -119,12 +120,13 @@ export default {
         },
 
         async fetchOpenOrders() {
+            await this.exchangeObject.signIn();
             this.openOrders = await this.exchangeObject.fetchOpenOrders(this.selectedMarketId);
         },
 
         async fetchTestStrategy() {
             try {
-                const response = await axios.get(`${appUrl}api/test-strategy/${this.selectedMarketId}`);
+                const response = await axios.get(`${appUrl}api/test-strategy/${this.selectedMarketId}?exchange=${this.exchange}`);
                 this.testAsks = response.data.orders.asks;
                 this.testBids = response.data.orders.bids;
             } catch (error) {

@@ -10,10 +10,11 @@ export default class SymbolsStorage {
         try {
             let timezone = "UTC";
 
-            const delimiter = symbolName.includes("_") ? "_" : "/";
-            const [coin, base] = symbolName.split(delimiter);
+            // Some frustration hocus pocus to get the right delimiter.
+            let delimiter = symbolName.includes("_") ? "_" : "/";
+            delimiter = symbolName.includes("-") ? "-" : "/";
 
-            const marketSymbol = `${coin.toUpperCase()}/USDT`;
+            const [coin, base] = symbolName.split(delimiter);
 
             if (!this.exchange.markets) {
                 await this.exchange.loadMarkets();
@@ -21,8 +22,9 @@ export default class SymbolsStorage {
 
             // Get the market and precision price
             const market = this.exchange.market(symbolName);
+            console.log(market);
             const precision = parseFloat(
-                "1" + "0".repeat(market.info.price_max_precision)
+                "1" + "0".repeat(market.info.price_max_precision ? market.info.price_max_precision : market.info.cost_precision)
             )
 
             this.history[symbolName] = {
