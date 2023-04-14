@@ -41,7 +41,7 @@ export const fetchOrderBook = async (pairConfig, pair) => {
         const exchange = exchangeObject.default;
         orderBook = await exchange.fetchOrderBook(pair);
     } catch (error) {
-        throw new Error('Something went wrong while fetching the orderbook');
+        throw new Error('Something went wrong while fetching the orderbook', error);
     }
 
     return orderBook;
@@ -59,6 +59,23 @@ export const fetchKlines = async (pairConfig, pair, timeframe) => {
     }
 
     return klines;
+}
+
+export const fetchUserBalanceForPair = async (pairConfig, pair) => {
+    try {
+        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
+        const exchange = exchangeObject.default;
+        const balance = await exchange.fetchBalance();
+        const [base, quote] = pair.split('/');
+
+        return {
+            base: balance[base] ? balance[base].total : 0,
+            quote: balance[quote] ? balance[quote].total : 0
+        };
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
 }
 
 export const mapBidAsks = async (orderBook) => {

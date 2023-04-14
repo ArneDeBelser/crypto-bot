@@ -1,3 +1,14 @@
+export async function filterPriceLevels(trades, priceLevels) {
+    const lastTrade = trades[trades.length - 1];
+    const lastTradePrice = lastTrade.price_avg;
+    const lastTradeAmount = lastTrade.amount;
+    const sellTrades = trades.filter(trade => trade.side === 'sell' && trade.amount === lastTradeAmount);
+    const maxSellPrice = sellTrades.length > 0 ? Math.max(...sellTrades.map(trade => trade.price_avg)) : Number.MAX_VALUE;
+    const filteredPriceLevels = priceLevels.filter(price => price <= lastTradePrice * 0.90 && price >= maxSellPrice);
+    return filteredPriceLevels;
+}
+
+
 export async function extractLevels(trades) {
     const buys = {};
     const sells = {};

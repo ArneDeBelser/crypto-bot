@@ -1,7 +1,7 @@
 import { config } from './config/pairs.mjs';
 import { logSymbol } from './helpers/botHelpers.mjs';
 
-const wait = 5000;
+const wait = 2000;
 
 async function runBotCycle(pairConfig) {
     console.log(`${logSymbol(pairConfig)} Bot running through cycle`);

@@ -57,7 +57,7 @@ export async function insertOrder(order, exchange) {
 export async function getAllOrdersByPair(exchange, pair) {
     pair = pair.replace('_', '/');
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM orders WHERE exchange = ? AND symbol = ?`;
+        const sql = `SELECT * FROM orders WHERE exchange = ? AND symbol = ? ORDER BY datetime ASC`;
 
         db.all(sql, [exchange, pair], (err, rows) => {
             if (err) {

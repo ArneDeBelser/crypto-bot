@@ -1,9 +1,8 @@
 import { strategyConfigs } from "../config/strategy.mjs";
-import { logSymbol, fetchUserTrades, fetchOrderBook, mapBidAsks } from "../helpers/botHelpers.mjs";
-import { filterNumbersWithinXPercentage } from "./algoritms/filternumberswithinxpercentage.mjs";
-import { filterCloseToCurrentPrice } from "./algoritms/filterclosetocurrentprice.mjs";
 import { getAllOrdersByPair } from "../database/orders.mjs";
-import { extractLevels } from "./algoritms/getpositions.mjs";
+import { filterCloseToCurrentPrice } from "./algoritms/filterclosetocurrentprice.mjs";
+import { filterNumbersWithinXPercentage } from "./algoritms/filternumberswithinxpercentage.mjs";
+import { logSymbol, fetchUserTrades, fetchOrderBook, mapBidAsks, fetchUserBalanceForPair } from "../helpers/botHelpers.mjs";
 
 export default async function strategy(pairConfig, pair) {
   console.log(`${logSymbol(pairConfig)} Running "ab" strategy`);
@@ -15,12 +14,14 @@ export default async function strategy(pairConfig, pair) {
   const filterBidThreshold = pairConfig.strategy.filterBidThreshold || strategyConfigs.ab.filterBidThreshold.defaultValue;
 
   // Fetching all the required data
-  // Fetch new orders
+  // Fetch new orders and assign all orders to trades which is later used
   await fetchUserTrades(pairConfig, pair);
   const trades = await getAllOrdersByPair(pairConfig.exchange, pair);
   // console.log(trades);
-  const lastPosition = await extractLevels(trades);
-  console.log(lastPosition);
+
+  const pairBalance = await fetchUserBalanceForPair(pairConfig, pair);
+  // console.log(pairBalance);
+
   // Fetch orderbook 
   const orderBook = await fetchOrderBook(pairConfig, pair);
 
@@ -42,6 +43,11 @@ export default async function strategy(pairConfig, pair) {
   askOrders = askOrders.slice(-5);
   // Get the first 5 bids
   bidOrders = bidOrders.slice(0, 5);
+
+
+  // Filter out bids that were already hit, but net yet sold
+  // bidOrders = await filterPriceLevels(trades, bidOrders);
+  // console.log(bidOrders);
 
   // Never put a sell order below currentprice
   // Never put a buy order above current price

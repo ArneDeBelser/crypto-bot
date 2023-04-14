@@ -81,8 +81,8 @@ export const drawTestOrderLine = (activeChart, price, side) => {
         .onCancel({}, async (e) => {
             // code to handle cancel event
         })
-        .setLineStyle(0)
-        .setLineLength(300)
+        .setLineStyle(1)
+        .setLineLength(80)
         .setExtendLeft(true);
 }
 
@@ -95,5 +95,5 @@ function setTestOrderLineText(side) {
 }
 
 function setTestOrderLineColor(side) {
-    return side == "buy" ? "#6fa8dc" : "#e06666";
+    return side == "buy" ? "#52a42e" : "#c44242";
 }

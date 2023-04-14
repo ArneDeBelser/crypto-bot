@@ -9,13 +9,38 @@ export const config = [
         },
     },
     {
+        symbol: 'ZENIQ/USDT',
+        exchange: 'bitmart',
+        interval: 15 * 60 * 1000,
+        ignore: false,
+        strategy: {
+            identifier: 'ab',
+            filterAskThreshold: 0.05,
+            filterBidThreshold: 0.02,
+            closeToCurrentPricePercentageAsk: 0.02,
+            closeToCurrentPricePercentageBid: 0.02,
+        },
+    },
+    {
+        symbol: 'GBEX/USDT',
+        exchange: 'bitmart',
+        interval: 15 * 60 * 1000,
+        ignore: false,
+        strategy: {
+            identifier: 'ab',
+            filterAskThreshold: 0.05,
+            filterBidThreshold: 0.02,
+            closeToCurrentPricePercentageAsk: 0.1,
+            closeToCurrentPricePercentageBid: 0.07,
+        },
+    },
+    {
         symbol: 'GODE/USDT',
         exchange: 'bitmart',
         interval: 15 * 60 * 1000,
         ignore: false,
         strategy: {
             identifier: 'ab',
-            gapThresholdMulitplier: 0.05,
             filterAskThreshold: 0.05,
             filterBidThreshold: 0.1,
         },
@@ -23,19 +48,6 @@ export const config = [
     {
         symbol: 'BITBOY/USDT',
         exchange: 'bitmart',
-        interval: 15 * 60 * 1000,
-        ignore: false,
-        strategy: {
-            identifier: 'ab',
-            gapThresholdMulitplier: 0.05,
-            filterAskThreshold: 0.05,
-            filterBidThreshold: 0.1,
-        },
-    },
-    {
-        symbol: 'APL/USDT',
-        exchange: 'bitmart',
-        strategy: 'ab',
         interval: 15 * 60 * 1000,
         ignore: false,
         strategy: {

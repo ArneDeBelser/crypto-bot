@@ -1,6 +1,6 @@
-export const findPriceGaps = (prices, gapThresholdMulitplier) => {
+export const findPriceGaps = (prices, gapThresholdMultiplier) => {
     const priceRange = Math.max(...prices) - Math.min(...prices);
-    const threshold = priceRange * gapThresholdMulitplier;
+    const threshold = priceRange * gapThresholdMultiplier;
     const gaps = [];
 
     for (let i = 1; i < prices.length; i++) {
