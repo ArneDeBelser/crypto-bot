@@ -1,7 +1,9 @@
 import { strategyConfigs } from "../config/strategy.mjs";
-import { logSymbol, fetchOrders, fetchOrderBook, fetchKlines, mapBidAsks } from "../helpers/botHelpers.mjs";
+import { logSymbol, fetchUserTrades, fetchOrderBook, mapBidAsks } from "../helpers/botHelpers.mjs";
 import { filterNumbersWithinXPercentage } from "./algoritms/filternumberswithinxpercentage.mjs";
 import { filterCloseToCurrentPrice } from "./algoritms/filterclosetocurrentprice.mjs";
+import { getAllOrdersByPair } from "../database/orders.mjs";
+import { extractLevels } from "./algoritms/getpositions.mjs";
 
 export default async function strategy(pairConfig, pair) {
   console.log(`${logSymbol(pairConfig)} Running "ab" strategy`);
@@ -14,7 +16,11 @@ export default async function strategy(pairConfig, pair) {
 
   // Fetching all the required data
   // Fetch new orders
-  await fetchOrders(pairConfig, pair);
+  await fetchUserTrades(pairConfig, pair);
+  const trades = await getAllOrdersByPair(pairConfig.exchange, pair);
+  // console.log(trades);
+  const lastPosition = await extractLevels(trades);
+  console.log(lastPosition);
   // Fetch orderbook 
   const orderBook = await fetchOrderBook(pairConfig, pair);
 

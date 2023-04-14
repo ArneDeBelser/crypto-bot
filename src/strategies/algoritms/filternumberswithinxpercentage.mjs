@@ -10,7 +10,7 @@ export const filterNumbersWithinXPercentage = (arr, threshold) => {
 
         if (percentDifference >= threshold) {
             result.push(currentNumber);
-        } else if (i === arr.length - 1) {
+        } else if (i === arr.length - 1 && percentDifference >= threshold) {
             result.push(currentNumber);
         }
     }

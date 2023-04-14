@@ -92,22 +92,6 @@ app.get('/api/get-orders/:exchange/:pair', async (req, res) => {
     }
 });
 
-
-app.get('/api/get-orders/:exchange/:pair', async (req, res) => {
-    const exchange = req.params.exchange;
-    const pair = req.params.pair;
-
-    try {
-        // Query the database for the orders
-        const orders = await getAllOrdersByPair(exchange, pair);
-
-        res.send({ orders });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Unable to fetch orders' });
-    }
-});
-
 app.get('/api/test-strategy/:pair', async (req, res) => {
     const pair = req.params.pair.replace('_', '/');
 

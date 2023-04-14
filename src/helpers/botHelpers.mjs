@@ -5,7 +5,7 @@ export const logSymbol = (pairConfig) => {
     return `\x1b[33m[\x1b[32m${pairConfig.symbol}\u001b[37;1m:\u001b[31;1m${pairConfig.exchange}\u001b[37;1m:\u001b[34;1m${pairConfig.strategy.identifier}\x1b[33m]\x1b[0m`;
 }
 
-export const fetchOrders = async (pairConfig, pair, since) => {
+export const fetchUserTrades = async (pairConfig, pair, since) => {
     const lastOrder = await getLastOrder(pair, pairConfig.exchange);
     const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
     const exchange = exchangeObject.default

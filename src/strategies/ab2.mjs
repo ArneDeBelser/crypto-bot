@@ -1,5 +1,5 @@
 import { strategyConfigs } from "../config/strategy.mjs";
-import { logSymbol, fetchOrders, fetchOrderBook, fetchKlines, mapBidAsks } from "../helpers/botHelpers.mjs";
+import { logSymbol, fetchUserTrades, fetchOrderBook, fetchKlines, mapBidAsks } from "../helpers/botHelpers.mjs";
 import { filterNumbersWithinXPercentage } from "./algoritms/filternumberswithinxpercentage.mjs";
 import { findPriceGaps, addOrdersInGaps } from "./algoritms/findgap.mjs";
 import { filterCloseToCurrentPrice } from "./algoritms/filterclosetocurrentprice.mjs";
@@ -8,7 +8,7 @@ export default async function abStrategy(pairConfig, pair) {
   console.log(`${logSymbol(pairConfig)} Running "ab.mjs" strategy`);
 
   // Fetch new orders
-  fetchOrders(pairConfig, pair);
+  fetchUserTrades(pairConfig, pair);
 
   // Setup strategy parameters
   const gapThresholdMulitplier = pairConfig.strategy.gapThresholdMulitplier || strategyConfigs.ab.gapThresholdMulitplier.defaultValue;
