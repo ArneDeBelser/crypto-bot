@@ -1,26 +1,32 @@
-function filterBuyLevels(trades, buyLevels) {
-    const boughtLevels = new Set();
-    const filteredLevels = [];
+export function filterLevels(levels, trades, side) {
+    const invalidLevels = new Set();
 
-    for (const trade of trades) {
-        const level = trade.price_avg;
-        const isBuy = trade.side === 'buy';
+    for (let i = trades.length - 1; i >= 0; i--) {
+        const trade = trades[i];
+        const tradePrice = trade.price_avg;
+        const tradeSide = trade.side;
 
-        if (isBuy) {
-            boughtLevels.add(level);
+        if (tradeSide === side) {
+            for (let j = 0; j < levels.length; j++) {
+                const levelPrice = levels[j];
+                if (!invalidLevels.has(levelPrice) && (
+                    (side === "buy" && tradePrice <= levelPrice * 1.1) ||
+                    (side === "sell" && tradePrice >= levelPrice * 0.9)
+                )) {
+                    //  console.log(`Removing ${side} level ${levelPrice} due to trade at ${tradePrice}`);
+                    invalidLevels.add(levelPrice);
+                }
+            }
         } else {
-            boughtLevels.delete(level);
+            for (let j = levels.length - 1; j >= 0; j--) {
+                const levelPrice = levels[j];
+                if (invalidLevels.has(levelPrice)) {
+                    // console.log(`${side} level ${levelPrice} invalidated by a ${tradeSide}`);
+                    invalidLevels.delete(levelPrice);
+                }
+            }
         }
     }
 
-    for (const level of buyLevels) {
-        const isInvalidated = Array.from(boughtLevels)
-            .some(boughtLevel => Math.abs((boughtLevel - level) / boughtLevel) < 0.1);
-
-        if (!isInvalidated) {
-            filteredLevels.push(level);
-        }
-    }
-
-    return filteredLevels;
+    return levels.filter((levelPrice) => !invalidLevels.has(levelPrice));
 }
