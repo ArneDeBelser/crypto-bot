@@ -120,7 +120,8 @@ export default {
         },
 
         async fetchOpenOrders() {
-            await this.exchangeObject.signIn();
+            if (typeof this.exchangeObject.signIn === 'function') await this.exchangeObject.signIn();
+
             this.openOrders = await this.exchangeObject.fetchOpenOrders(this.selectedMarketId);
         },
 

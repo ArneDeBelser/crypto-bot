@@ -10,8 +10,8 @@ export const getPairConfig = async (config, pair, exchange) => {
 }
 
 function getConfig(configArr, key, value, exchange) {
-    console.log(`getConfig: Searching for ${key}=${value} in configArr`, configArr);
-    console.log(`getConfig: Searching for exchange=${exchange} in configArr`, configArr);
+    // console.log(`getConfig: Searching for ${key}=${value} in configArr`, configArr);
+    // console.log(`getConfig: Searching for exchange=${exchange} in configArr`, configArr);
 
     // Find the first configuration object in the array that has a property with the given key and value
     const matchingConfig = configArr.find(function (config) {
@@ -20,7 +20,7 @@ function getConfig(configArr, key, value, exchange) {
 
     // If a matching configuration was found, return it
     if (matchingConfig) {
-        console.log(`getConfig: Found matching config:`, matchingConfig);
+        // console.log(`getConfig: Found matching config:`, matchingConfig);
         return matchingConfig;
     }
 
@@ -31,11 +31,11 @@ function getConfig(configArr, key, value, exchange) {
 
     // If a default configuration was found, return it
     if (defaultConfig) {
-        console.log(`getConfig: Using default config:`, defaultConfig);
+        // console.log(`getConfig: Using default config:`, defaultConfig);
         return defaultConfig;
     }
 
     // If no default configuration was found, return undefined
-    console.log(`getConfig: No matching config or default config found`);
+    // console.log(`getConfig: No matching config or default config found`);
     return undefined;
 }

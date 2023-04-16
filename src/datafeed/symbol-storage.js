@@ -11,8 +11,17 @@ export default class SymbolsStorage {
             let timezone = "UTC";
 
             // Some frustration hocus pocus to get the right delimiter.
-            let delimiter = symbolName.includes("_") ? "_" : "/";
-            delimiter = symbolName.includes("-") ? "-" : "/";
+            let delimiter;
+
+            if (symbolName.includes("-")) {
+                delimiter = "-";
+            } else if (symbolName.includes("_")) {
+                delimiter = "_";
+            } else if (symbolName.includes("/")) {
+                delimiter = "/";
+            } else {
+                console.error("No delimiter found in string");
+            }
 
             const [coin, base] = symbolName.split(delimiter);
 
@@ -22,7 +31,6 @@ export default class SymbolsStorage {
 
             // Get the market and precision price
             const market = this.exchange.market(symbolName);
-            console.log(market);
             const precision = parseFloat(
                 "1" + "0".repeat(market.info.price_max_precision ? market.info.price_max_precision : market.info.cost_precision)
             )

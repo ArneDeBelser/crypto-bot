@@ -7,7 +7,7 @@ cors_proxy.createServer(function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    console.log(`[${new Date().toISOString()}] Access from: ${req.headers['origin']}, Method: ${req.method}, URL: ${req.url}`);
+    console.log(`[${new Date().toISOString()}] Access from: ${JSON.stringify(req.headers['origin'])}, Method: ${JSON.stringify(req.method)}, URL: ${JSON.stringify(req.url)}`);
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();

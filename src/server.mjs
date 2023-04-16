@@ -98,6 +98,7 @@ app.get('/api/test-strategy/:pair', async (req, res) => {
 
     try {
         console.log(`Running test for ${pair}`);
+        console.log(exchange);
         const [pairConfig, strategyModule] = await getPairConfig(config, pair, exchange);
         console.log(pairConfig);
         const strategy = strategyModule.default;

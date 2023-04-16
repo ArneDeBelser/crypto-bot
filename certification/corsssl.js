@@ -5,14 +5,15 @@ const minimist = require('minimist');
 const options = minimist(process.argv.slice(2));
 const fs = require('fs');
 
-console.log('https-port:', options['https-port']);
-console.log('https-key:', options['https-key']);
-console.log('https-cert:', options['https-cert']);
-
 let port = options['https-port'] || 8080;
+
+// Sanitize key and cert file paths
+const sanitizedKeyPath = options['https-key'].replace(/[^a-zA-Z0-9/]+/g, '');
+const sanitizedCertPath = options['https-cert'].replace(/[^a-zA-Z0-9/]+/g, '');
+
 require('cors-anywhere').createServer({
     httpsOptions: {
-        key: fs.readFileSync(options['https-key']),
-        cert: fs.readFileSync(options['https-cert']),
+        key: fs.readFileSync(sanitizedKeyPath),
+        cert: fs.readFileSync(sanitizedCertPath),
     }
 }).listen(port, 'localhost');

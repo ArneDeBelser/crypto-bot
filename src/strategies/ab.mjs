@@ -1,8 +1,8 @@
 import { strategyConfigs } from "../config/strategy.mjs";
 import { getAllOrdersByPair } from "../database/orders.mjs";
+import { fetchOrderBook, fetchUserBalanceForPair, fetchUserTrades, logSymbol, mapBidAsks } from "../helpers/botHelpers.mjs";
 import { filterCloseToCurrentPrice } from "./algoritms/filterclosetocurrentprice.mjs";
 import { filterNumbersWithinXPercentage } from "./algoritms/filternumberswithinxpercentage.mjs";
-import { logSymbol, fetchUserTrades, fetchOrderBook, mapBidAsks, fetchUserBalanceForPair } from "../helpers/botHelpers.mjs";
 
 export default async function strategy(pairConfig, pair) {
   console.log(`${logSymbol(pairConfig)} Running "ab" strategy`);
@@ -17,7 +17,7 @@ export default async function strategy(pairConfig, pair) {
   // Fetch new orders and assign all orders to trades which is later used
   await fetchUserTrades(pairConfig, pair);
   const trades = await getAllOrdersByPair(pairConfig.exchange, pair);
-  // console.log(trades);
+  console.log(trades);
 
   const pairBalance = await fetchUserBalanceForPair(pairConfig, pair);
   // console.log(pairBalance);
@@ -35,17 +35,23 @@ export default async function strategy(pairConfig, pair) {
   let askOrders = filterCloseToCurrentPrice(closeToCurrentPricePercentageAsk, orderBook.asks[0][0], asks, "up");
   let bidOrders = filterCloseToCurrentPrice(closeToCurrentPricePercentageBid, orderBook.bids[0][0], bids, "down");
 
+  // Filter out numbers to close to already bought levels in this iteration
+  console.log(bidOrders);
+
   // Filter out nubers within x percentage of eachother
-  askOrders = filterNumbersWithinXPercentage(askOrders, filterAskThreshold);
-  bidOrders = filterNumbersWithinXPercentage(bidOrders, filterBidThreshold);
+  // askOrders = filterNumbersWithinXPercentage(askOrders, filterAskThreshold);
+  // bidOrders = filterNumbersWithinXPercentage(bidOrders, filterBidThreshold);
 
   // Get the last 5 asks 
-  askOrders = askOrders.slice(-5);
-  // Get the first 5 bids
-  bidOrders = bidOrders.slice(0, 5);
+  // askOrders = askOrders.slice(-5);
+  // // Get the first 5 bids
+  // bidOrders = bidOrders.slice(0, 5);
 
 
   // Filter out bids that were already hit, but net yet sold
+
+
+
   // bidOrders = await filterPriceLevels(trades, bidOrders);
   // console.log(bidOrders);
 

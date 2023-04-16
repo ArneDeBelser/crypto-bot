@@ -23,6 +23,7 @@ export default {
 
     methods: {
         handleExchangeClick(exchange) {
+            console.log(exchange);
             localStorage.setItem('selectedExchange', exchange);
             localStorage.setItem('selectedMarket', 'BTC/USDT');
             location.reload();

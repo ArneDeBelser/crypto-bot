@@ -8,7 +8,8 @@ export const logSymbol = (pairConfig) => {
 export const fetchUserTrades = async (pairConfig, pair, since) => {
     const lastOrder = await getLastOrder(pair, pairConfig.exchange);
     const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
-    const exchange = exchangeObject.default
+    const exchange = exchangeObject.default;
+    if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
 
     try {
         if (lastOrder && lastOrder.length > 0) {
@@ -39,6 +40,8 @@ export const fetchOrderBook = async (pairConfig, pair) => {
     try {
         const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
         const exchange = exchangeObject.default;
+        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
+
         orderBook = await exchange.fetchOrderBook(pair);
     } catch (error) {
         throw new Error('Something went wrong while fetching the orderbook', error);
@@ -53,6 +56,8 @@ export const fetchKlines = async (pairConfig, pair, timeframe) => {
     try {
         const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
         const exchange = exchangeObject.default;
+        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
+
         klines = await exchange.fetchOHLCV(pair, timeframe);
     } catch (error) {
         throw new Error('Something went wrong while fetching the candlestick data');
@@ -65,6 +70,7 @@ export const fetchUserBalanceForPair = async (pairConfig, pair) => {
     try {
         const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
         const exchange = exchangeObject.default;
+        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
         const balance = await exchange.fetchBalance();
         const [base, quote] = pair.split('/');
 
