@@ -18,7 +18,6 @@
 <script>
 import axios from 'axios';
 import { mapState } from "vuex";
-import { AuthenticationError } from 'ccxt';
 import chartOverrides from "./helpers/overrides.mjs";
 import DataProvider from "../datafeed/data-provider";
 import { widget } from "../vendor/charting_library";

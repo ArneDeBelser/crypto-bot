@@ -1,5 +1,6 @@
 import { insertOrder, getLastOrder } from "../database/orders.mjs";
 //import { sendMessage } from '../TelegramBot.mjs';
+import { ExchangeError } from "ccxt";
 
 export const logSymbol = (pairConfig) => {
     return `\x1b[33m[\x1b[32m${pairConfig.symbol}\u001b[37;1m:\u001b[31;1m${pairConfig.exchange}\u001b[37;1m:\u001b[34;1m${pairConfig.strategy.identifier}\x1b[33m]\x1b[0m`;
@@ -72,15 +73,76 @@ export const fetchUserBalanceForPair = async (pairConfig, pair) => {
         const exchange = exchangeObject.default;
         if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
         const balance = await exchange.fetchBalance();
+        const ticker = await fetchRealTicker(pairConfig, pair);
         const [base, quote] = pair.split('/');
+        const baseBalance = balance[base] ? balance[base].total : 0;
+        const quoteBalance = balance[quote] ? balance[quote].total : 0;
 
         return {
-            base: balance[base] ? balance[base].total : 0,
-            quote: balance[quote] ? balance[quote].total : 0
+            base: baseBalance,
+            quote: quoteBalance,
+            usdtValue: parseFloat(baseBalance) * parseFloat(ticker.last),
         };
     } catch (error) {
         console.error(error);
         return null;
+    }
+}
+
+export const fetchOpenOrders = async (pairConfig, pair) => {
+    let openOrders = null;
+
+    try {
+        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
+        const exchange = exchangeObject.default;
+        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
+
+        openOrders = await exchange.fetchOpenOrders(pair);
+    } catch (error) {
+        throw new Error('Something went wrong while fetching the candlestick data');
+    }
+
+    return openOrders;
+}
+
+export const fetchRealTicker = async (pairConfig, pair) => {
+    try {
+        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
+        const exchange = exchangeObject.default;
+        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
+
+        // Some hocus pocus to get ticker data in case the exchange has not fetchTicker availability
+        let ticker;
+        try {
+            ticker = await exchange.fetchTicker(pair);
+        } catch (error) {
+            if (error instanceof ExchangeError) {
+                try {
+                    const ohlcv = await exchange.fetchOHLCV(pair, '1m', undefined, 1);
+                    ticker = {};
+                    ticker.last = ohlcv[0][4];
+                } catch (error) {
+                    throw new Error('Something went wrong while trying to get ticker, even OHLCV is not working - Arne');
+                }
+            }
+        }
+
+        return ticker;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const cancelOrder = async (orderId, pair) => {
+    try {
+        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
+        const exchange = exchangeObject.default;
+        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
+
+        await exchange.cancelOrder(orderId, pair);
+    } catch (error) {
+        throw new Error(`Something went wrong while cancelling order #${orderId} | ${pair}`);
     }
 }
 

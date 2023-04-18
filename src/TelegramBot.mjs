@@ -74,15 +74,17 @@ let bot = {
 
 const appUrl = process.env.VITE_SERVER_URL;
 
-// Periodically check the bot status
-setInterval(async () => {
-    try {
-        const { data } = await axios.get(`${appUrl}api/bot-status`);
-        bot.status = data.status;
-        // console.log('TelegramBot: Current bot status:', bot.status);
-    } catch (error) {
-        if (error.code != 'ECONNRESET') {
-            console.error('TelegramBot: Failed to get bot status:', error.code);
+if (process.env.VITE_TELEGRAM_BOT_STATUS == 'on') {
+    // Periodically check the bot status
+    setInterval(async () => {
+        try {
+            const { data } = await axios.get(`${appUrl}api/bot-status`);
+            bot.status = data.status;
+            // console.log('TelegramBot: Current bot status:', bot.status);
+        } catch (error) {
+            if (error.code != 'ECONNRESET') {
+                console.error('TelegramBot: Failed to get bot status:', error.code);
+            }
         }
-    }
-}, 5000);
+    }, 5000);
+}

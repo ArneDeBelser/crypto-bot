@@ -1,3 +1,5 @@
+import BigNumber from "bignumber.js";
+
 export const drawArrow = (activeChart, trade) => {
     return activeChart.createMultipointShape(
         [
@@ -53,25 +55,30 @@ export const drawOrderLine = (activeChart, order) => {
         .setExtendLeft(true);
 }
 
-export const drawTestOrderLine = (activeChart, price, side) => {
+export const drawTestOrderLine = (activeChart, order, side) => {
     let orderLine = activeChart.createOrderLine({
         disableUndo: true,
     });
 
+    let amountUsdt = new BigNumber(order.amountUsdt);
+    let formattedAmountUsdt = amountUsdt.toFixed(2);
+
+    console.log(formattedAmountUsdt);
+
     orderLine
-        .setPrice(parseFloat(price))
-        .setQuantity(1)
-        .setText(setTestOrderLineText(side))
+        .setPrice(parseFloat(order.price))
+        .setQuantity(order.amount)
+        .setText(`${setTestOrderLineText(side)} | ${formattedAmountUsdt} USDT`)
         .setLineColor(setTestOrderLineColor(side))
         .setBodyFont("12px Roboto, sans-serif")
         .setBodyBorderColor(setTestOrderLineColor(side))
-        .setBodyTextColor("#FFFFFF")
+        .setBodyTextColor(order.side == "buy" ? "#000" : "#fff")
         .setBodyBackgroundColor(setTestOrderLineColor(side))
         .setQuantityFont("12px Roboto, sans-serif")
         .setQuantityBackgroundColor(setTestOrderLineColor(side))
         .setQuantityBorderColor(setTestOrderLineColor(side))
-        .setQuantityTextColor("#FFFFFF")
-        .setCancelButtonIconColor("#FFFFFF")
+        .setQuantityTextColor(order.side == "buy" ? "#000" : "#fff")
+        .setCancelButtonIconColor(order.side == "buy" ? "#000" : "#fff")
         .setCancelButtonBorderColor(setTestOrderLineColor(side))
         .setCancelButtonBackgroundColor(setTestOrderLineColor(side))
         .setModifyTooltip("Edit")
@@ -82,7 +89,7 @@ export const drawTestOrderLine = (activeChart, price, side) => {
             // code to handle cancel event
         })
         .setLineStyle(1)
-        .setLineLength(80)
+        .setLineLength(60)
         .setExtendLeft(true);
 }
 
@@ -91,7 +98,7 @@ function setColor(side) {
 }
 
 function setTestOrderLineText(side) {
-    return side == "buy" ? "BUY ORDER" : "SELL ORDER";
+    return side == "buy" ? "BUY" : "SELL";
 }
 
 function setTestOrderLineColor(side) {

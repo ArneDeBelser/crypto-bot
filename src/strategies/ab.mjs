@@ -1,28 +1,42 @@
 import { strategyConfigs } from "../config/strategy.mjs";
 import { getAllOrdersByPair } from "../database/orders.mjs";
-import { fetchOrderBook, fetchUserBalanceForPair, fetchUserTrades, logSymbol, mapBidAsks } from "../helpers/botHelpers.mjs";
+import { fetchOrderBook, fetchUserBalanceForPair, fetchOpenOrders, fetchUserTrades, logSymbol, mapBidAsks, cancelOrder, fetchKlines, fetchRealTicker } from "../helpers/botHelpers.mjs";
+import { filterLevels } from "./algoritms/filterlevels.mjs";
 import { filterCloseToCurrentPrice } from "./algoritms/filterclosetocurrentprice.mjs";
 import { filterNumbersWithinXPercentage } from "./algoritms/filternumberswithinxpercentage.mjs";
+import { filterKlineRange } from "./algoritms/filterklinerange.mjs";
+import { calculateAskOrders, calculateBidOrders } from "./algoritms/calculateBidAskOrderAmounts.mjs";
 
 export default async function strategy(pairConfig, pair) {
   console.log(`${logSymbol(pairConfig)} Running "ab" strategy`);
 
   // Setup strategy parameters
-  const closeToCurrentPricePercentageAsk = pairConfig.strategy.closeToCurrentPricePercentageAsk || strategyConfigs.ab.closeToCurrentPricePercentageAsk.defaultValue;
-  const closeToCurrentPricePercentageBid = pairConfig.strategy.closeToCurrentPricePercentageBid || strategyConfigs.ab.closeToCurrentPricePercentageBid.defaultValue;
-  const filterAskThreshold = pairConfig.strategy.filterAskThreshold || strategyConfigs.ab.filterAskThreshold.defaultValue;
-  const filterBidThreshold = pairConfig.strategy.filterBidThreshold || strategyConfigs.ab.filterBidThreshold.defaultValue;
+  const baseUsdtAmount = pairConfig.baseUsdtAmount || strategyConfigs.baseUsdtAmount.defaultValue;
+  const minUsdtAmount = pairConfig.minUsdtAmount || strategyConfigs.minUsdtAmount.defaultValue;
+  const maxUsdtAmount = pairConfig.maxUsdtAmount || strategyConfigs.maxUsdtAmount.defaultValue;
+
+  const klineRangeLowAdjustmentFactor = pairConfig.strategy.klineRangeLowAdjustmentFactor || strategyConfigs.ab.klineRangeLowAdjustmentFactor.defaultValue;
+  const klineRangeHighAdjustmentFactor = pairConfig.strategy.klineRangeHighAdjustmentFactor || strategyConfigs.ab.klineRangeHighAdjustmentFactor.defaultValue;
+
+  const priceRangePercentageAsk = pairConfig.strategy.priceRangePercentageAsk || strategyConfigs.ab.priceRangePercentageAsk.defaultValue;
+  const priceRangePercentageBid = pairConfig.strategy.priceRangePercentageBid || strategyConfigs.ab.priceRangePercentageBid.defaultValue;
+
+  const askDifferenceThreshold = pairConfig.strategy.askDifferenceThreshold || strategyConfigs.ab.askDifferenceThreshold.defaultValue;
+  const bidDifferenceThreshold = pairConfig.strategy.bidDifferenceThreshold || strategyConfigs.ab.bidDifferenceThreshold.defaultValue;
+
+  const sellInvalidationThreshold = pairConfig.strategy.sellInvalidationThreshold || strategyConfigs.ab.sellInvalidationThreshold.defaultValue;
+  const buyInvalidationThreshold = pairConfig.strategy.buyInvalidationThreshold || strategyConfigs.ab.buyInvalidationThreshold.defaultValue;
 
   // Fetching all the required data
   // Fetch new orders and assign all orders to trades which is later used
   await fetchUserTrades(pairConfig, pair);
   const trades = await getAllOrdersByPair(pairConfig.exchange, pair);
-  console.log(trades);
+  // console.log(trades);
 
-  const pairBalance = await fetchUserBalanceForPair(pairConfig, pair);
-  // console.log(pairBalance);
+  // Fetch user balance so we know the USDT value for the given pair
+  const userBalance = await fetchUserBalanceForPair(pairConfig, pair);
 
-  // Fetch orderbook 
+  // Fetch orderbook so we can set up our levels
   const orderBook = await fetchOrderBook(pairConfig, pair);
 
   // Map bids and asks
@@ -31,34 +45,43 @@ export default async function strategy(pairConfig, pair) {
   const bids = bidsAndAsks.bids;
 
   // Run strategy
+  // Filter out price levels that are out of kline range, by changing '1d' to f.e. '4h' you can make the range more "tight"
+  const klines = await fetchKlines(pairConfig, pair, '1d');
+  let askOrders = filterKlineRange(klines, asks, orderBook.asks[0][0], klineRangeLowAdjustmentFactor, klineRangeHighAdjustmentFactor);
+  let bidOrders = filterKlineRange(klines, bids, orderBook.bids[0][0], klineRangeLowAdjustmentFactor, klineRangeHighAdjustmentFactor);
+
   // Filter out orders too close to current price
-  let askOrders = filterCloseToCurrentPrice(closeToCurrentPricePercentageAsk, orderBook.asks[0][0], asks, "up");
-  let bidOrders = filterCloseToCurrentPrice(closeToCurrentPricePercentageBid, orderBook.bids[0][0], bids, "down");
+  askOrders = filterCloseToCurrentPrice(priceRangePercentageAsk, orderBook.asks[0][0], askOrders, "up");
+  bidOrders = filterCloseToCurrentPrice(priceRangePercentageBid, orderBook.bids[0][0], bidOrders, "down");
 
   // Filter out numbers to close to already bought levels in this iteration
-  console.log(bidOrders);
+  askOrders = filterLevels(trades, askOrders, sellInvalidationThreshold);
+  bidOrders = filterLevels(trades, bidOrders, buyInvalidationThreshold);
 
   // Filter out nubers within x percentage of eachother
-  // askOrders = filterNumbersWithinXPercentage(askOrders, filterAskThreshold);
-  // bidOrders = filterNumbersWithinXPercentage(bidOrders, filterBidThreshold);
+  askOrders = filterNumbersWithinXPercentage(askOrders, askDifferenceThreshold);
+  bidOrders = filterNumbersWithinXPercentage(bidOrders, bidDifferenceThreshold);
 
   // Get the last 5 asks 
-  // askOrders = askOrders.slice(-5);
-  // // Get the first 5 bids
-  // bidOrders = bidOrders.slice(0, 5);
+  askOrders = askOrders.slice(-5);
+  // Get the first 5 bids
+  bidOrders = bidOrders.slice(0, 5);
 
+  const ticker = await fetchRealTicker(pairConfig, pair);
 
-  // Filter out bids that were already hit, but net yet sold
+  askOrders = calculateAskOrders(userBalance, askOrders, ticker.last, minUsdtAmount);
+  bidOrders = calculateBidOrders(userBalance, bidOrders, ticker.last, baseUsdtAmount, maxUsdtAmount);
 
+  // Remove all current orders from the book
+  const openOrders = await fetchOpenOrders(pairConfig, pair);
 
+  openOrders.forEach(order => {
+    // logInfo(`Fake cancelling order #${order.id} | ${pair}`)
+    // cancelOrder(order.id, pair);
+  })
 
-  // bidOrders = await filterPriceLevels(trades, bidOrders);
-  // console.log(bidOrders);
-
-  // Never put a sell order below currentprice
-  // Never put a buy order above current price
-
-  // This part is needed for testing the strategy, the actual bot doesn't use this part
+  // This part is needed for testing the strategy, this information is pushed into the TV chart on click "TEST STRATEGY".
+  // The actual bot doesn't use this return values
   return {
     asks: askOrders,
     bids: bidOrders

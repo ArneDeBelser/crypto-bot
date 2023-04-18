@@ -4,6 +4,7 @@ import { config } from './config/pairs.mjs';
 import { startTelegramBot } from './TelegramBot.mjs';
 import { getPairConfig } from './helpers/pairConfig.mjs';
 import { getAllOrdersByPair } from './database/orders.mjs';
+import './logger.mjs';
 
 /* Database */
 import './database/database.mjs';
@@ -98,9 +99,7 @@ app.get('/api/test-strategy/:pair', async (req, res) => {
 
     try {
         console.log(`Running test for ${pair}`);
-        console.log(exchange);
         const [pairConfig, strategyModule] = await getPairConfig(config, pair, exchange);
-        console.log(pairConfig);
         const strategy = strategyModule.default;
         const orders = await strategy(pairConfig, pair);
 
@@ -114,7 +113,10 @@ app.get('/api/test-strategy/:pair', async (req, res) => {
 const port = 3000;
 
 app.listen(port, () => {
-    startTelegramBot();
+    if (process.env.VITE_TELEGRAM_BOT_STATUS == 'on') {
+        startTelegramBot();
+    }
+
     console.log(`Server listening on port ${port}`);
 });
 
