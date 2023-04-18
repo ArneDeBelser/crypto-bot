@@ -19,6 +19,7 @@
   "author": "De Belser Arne",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^7.21.4",
     "@mdi/font": "^7.2.96",
     "axios": "^1.3.5",
     "bignumber": "^1.1.0",
