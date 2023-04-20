@@ -1,7 +1,7 @@
 // JavaScript CORS Proxy
 // Save this in a file like cors.js and run with `node cors [port]`
 // It will listen for your requests on the port you pass in command line or port 8080 by default
-let port = (process.argv.length > 2) ? parseInt(process.argv[2]) : 8081; // default
+let port = (process.argv.length > 2) ? parseInt(process.argv[2]) : 8080; // default
 const cors_proxy = require('cors-anywhere');
 cors_proxy.createServer(function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');

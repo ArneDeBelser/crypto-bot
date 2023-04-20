@@ -68,7 +68,7 @@ export const drawTestOrderLine = (activeChart, order, side) => {
     orderLine
         .setPrice(parseFloat(order.price))
         .setQuantity(order.amount)
-        .setText(`${setTestOrderLineText(side)} | ${formattedAmountUsdt} USDT`)
+        .setText(`${setTestOrderLineText(side)} ${formattedAmountUsdt} USDT`)
         .setLineColor(setTestOrderLineColor(side))
         .setBodyFont("12px Roboto, sans-serif")
         .setBodyBorderColor(setTestOrderLineColor(side))
