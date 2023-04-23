@@ -113,7 +113,7 @@ class Telegram {
             this.getTelegramBot().answerCallbackQuery(query.id);
         });
 
-        console.log('Telegram bot is running!');
+        console.log(`\x1b[38;5;178m[${new Date().toLocaleString()}]\x1b[0m Telegram bot is running`);
     }
 
     listenBotStatus() {

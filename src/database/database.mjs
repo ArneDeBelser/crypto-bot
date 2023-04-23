@@ -7,7 +7,8 @@ export const db = new sqlite3.Database(DB_FILENAME, (err) => {
         console.error(err.message);
         throw err;
     }
-    console.log(`Connected to SQLite database file ${DB_FILENAME}.`);
+
+    //console.log(`Connected to SQLite database file ${DB_FILENAME}.`);
 });
 
 export function createOrdersTable() {

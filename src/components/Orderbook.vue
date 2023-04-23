@@ -189,29 +189,40 @@ export default {
     padding: 0;
 }
 
-.bid-orders {
-    height: 50%;
+/* NEW STYLES START HERE */
+
+.orderbook {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
 }
 
 .ask-orders {
+    flex: 1;
     height: 50%;
     overflow-y: scroll;
 }
 
-.bid-scroll {
-    overflow-y: auto;
-    height: 100%;
+.bid-orders {
+    flex: 1;
+    height: 50%;
+    overflow-y: scroll;
 }
 
 .ask-scroll {
-    overflow-y: auto;
-    width: 100%;
     display: flex;
+    flex-direction: column-reverse;
 }
 
-.ask-scroll div {
-    overflow-y: auto;
-    width: 100%;
+.ask-scroll v-list-item {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.bid-scroll v-list-item {
+    display: flex;
+    flex-direction: row;
 }
 
 .bid-price,
@@ -225,4 +236,6 @@ export default {
 .ask-total {
     color: #F23644;
 }
+
+/* NEW STYLES END HERE */
 </style>

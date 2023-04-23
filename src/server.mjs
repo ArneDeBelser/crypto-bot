@@ -35,11 +35,11 @@ app.post('/api/start-bot', async (req, res) => {
         cryptAlyzeBotProcess = spawn('node', [botPath], { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] });
 
         cryptAlyzeBotProcess.stdout.on('data', (data) => {
-            console.log(`\x1b[38;5;178m[${new Date().toLocaleString()}]\x1b[0m CryptAlyzeBot: ${data.toString().trim()}`);
+            console.log(`\x1b[38;5;178m[${new Date().toLocaleString()}]\x1b[0m ${data.toString().trim()}`);
         });
 
         cryptAlyzeBotProcess.stderr.on('data', (data) => {
-            console.error(`\x1b[38;5;178m[${new Date().toLocaleString()}]\x1b[0m CryptAlyzeBot: ${data.toString().trim()}`);
+            console.error(`\x1b[38;5;178m[${new Date().toLocaleString()}]\x1b[0m ${data.toString().trim()}`);
         });
 
         cryptAlyzeBotProcess.on('message', (message) => {
@@ -123,49 +123,13 @@ app.listen(port, () => {
         telegramInstance.startTelegramBot();
     }
 
-    console.log(`Server listening on port ${port}`);
+    console.log(`\x1b[38;5;178m[${new Date().toLocaleString()}]\x1b[0m Server listening on port ${port}`);
 });
+
+import './fetchTrades.mjs';
 
 function isBotRunning() {
     return cryptAlyzeBotProcess !== null;
 }
-
-import { fetchUserTrades } from "./helpers/botHelpers.mjs";
-
-setInterval(async () => {
-    console.log('Fetching trades');
-
-    config.forEach(async (pairConfig) => {
-        if (pairConfig.symbol !== 'default') {
-            // console.log(`Trade Fetcher: Fetching trades for ${pairConfig.symbol} on ${pairConfig.exchange}`);
-            await fetchUserTrades(pairConfig, pairConfig.symbol);
-        }
-    });
-}, 120000); // 2 minutes = 120,000 milliseconds
-
-// function runTradeFetcher() {
-//     console.log('Starting a new trade fetcher process');
-//     const tradeFetcher = spawn('node', ['--max-old-space-size=8128', './src/tradeFetcher.mjs'], { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] });
-
-//     tradeFetcher.stdout.on('data', (data) => {
-//         console.log(`${data.toString().trim()}`);
-//     });
-
-//     tradeFetcher.stderr.on('data', (data) => {
-//         console.error(`${data.toString().trim()}`);
-//     });
-
-//     tradeFetcher.on('message', (message) => {
-//         if (message.type === 'TELEGRAM_MESSAGE') {
-//             telegramInstance.sendMessage(message.text);
-//         }
-//     });
-
-//     tradeFetcher.on('close', (code) => {
-//         console.log(`Trade Fetcher process exited with code ${code}`);
-//     });
-// }
-// // runTradeFetcher();
-// setInterval(runTradeFetcher, 12000);
 
 export default app;

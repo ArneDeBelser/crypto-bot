@@ -1,20 +1,17 @@
 <template>
   <v-navigation-drawer permanent>
-    <v-list color="transparent">
+    <v-list color="transparent" style="position: relative;">
       <v-divider></v-divider>
-      <v-text-field v-model="search" :label="'Search'" outlined dense style="position: sticky;"></v-text-field>
-      <v-pagination v-model="page" :length="totalPages" style="align-self: flex-end"></v-pagination>
-      <v-list-item v-for="market in paginatedMarkets" :key="market.symbol" @click="onMarketClick(market)">
-        <v-list-item-title>{{ market.symbol }}</v-list-item-title>
-      </v-list-item>
+      <v-text-field v-model="search" :label="'Search'" outlined dense style="position: sticky; top: 0;"></v-text-field>
+      <v-pagination v-model="page" :length="totalPages"
+        style="align-self: flex-end; position: sticky; top: 0;"></v-pagination>
+      <div style="height: 70vh; overflow-y: scroll;">
+        <v-list-item v-for="market in paginatedMarkets" :key="market.symbol" @click="onMarketClick(market)">
+          <v-list-item-title>{{ market.symbol }}</v-list-item-title>
+        </v-list-item>
+      </div>
       <v-pagination v-model="page" :length="totalPages"></v-pagination>
     </v-list>
-
-    <template v-slot:append>
-      <div class="pa-2">
-        <v-btn block color="blue">Logout</v-btn>
-      </div>
-    </template>
   </v-navigation-drawer>
 </template>
 
