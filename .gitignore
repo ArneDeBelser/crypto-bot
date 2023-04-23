@@ -5,6 +5,7 @@
 
 # Files
 .env
+src/database/cryptalyzebot.db
 package-lock.json
 certification/cert.pem
 certification/key.pem
