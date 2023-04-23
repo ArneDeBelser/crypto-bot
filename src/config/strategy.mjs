@@ -41,12 +41,12 @@ export const strategyConfigs = {
             defaultValue: 0.03, // 5% - The buyThreshold value acts as a filter to remove levels that have been invalidated by trades executed at prices too low, relative to their original price.
         },
 
-        // The buyThreshold and sellThreshold are parameters of the filterLevels function that control the filtering of levels based on trades and side arguments. It gives you a general way of specifying when a level is invalidated upon a sell or a buy
+        // The filterKlineRange function takes in a set of trading data and two adjustment factors. It then calculates the highest and lowest values from the trading data and applies the adjustment factors to expand or shrink the range of valid prices.
         klineRangeLowAdjustmentFactor: {
-            defaultValue: 0.9, // -10% - The sellThreshold value acts as a filter to remove levels that have been invalidated by trades executed at prices too high, relative to their original price.
+            defaultValue: 0.9, // -10% - For example, if the lowest value obtained from the trading data is $50 and the klineRangeLowAdjustmentFactor is 0.9, the function will shrink the valid price range by multiplying $50 by 0.9 to obtain a new minimum value of $45.
         },
         klineRangeHighAdjustmentFactor: {
-            defaultValue: 1.1, // +10% - The buyThreshold value acts as a filter to remove levels that have been invalidated by trades executed at prices too low, relative to their original price.
+            defaultValue: 1.1, // +10% -  For example, if the highest value obtained from the trading data is $100 and the klineRangeHighAdjustmentFactor is 1.1, the function will expand the valid price range by multiplying $100 by 1.1 to obtain a new maximum value of $110.
         },
     },
 };

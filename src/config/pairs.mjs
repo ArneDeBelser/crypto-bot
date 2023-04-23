@@ -31,6 +31,19 @@ export const config = [
         },
     },
     {
+        symbol: 'PUNCH/USDT',
+        exchange: 'bitmart',
+        interval: 15 * 60 * 1000,
+        ignore: false,
+        baseUsdtAmount: 10,
+        minUsdtAmount: 5.1,
+        maxUsdtAmount: 50,
+        strategy: {
+            identifier: 'ab',
+            klineRangeLowAdjustmentFactor: 0.6 // Adjust the range of valid prices obtained from trading data to filter out irrelevant data based on the current trading price - def: 0.9
+        },
+    },
+    {
         symbol: 'GODE/USDT',
         exchange: 'bitmart',
         interval: 15 * 60 * 1000,
