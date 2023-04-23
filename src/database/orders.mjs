@@ -17,7 +17,7 @@ export async function getLastOrder(pair, exchange) {
 }
 
 export async function insertOrder(order, exchange) {
-    console.log(`Inserting new order ${order.symbol} for ${exchange}`);
+    // console.log(`Inserting new order ${order.symbol} for ${exchange}`);
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO orders (
       exchange, symbol, price_avg, cost, fee_cost, fee_currency, fee_currency_price,

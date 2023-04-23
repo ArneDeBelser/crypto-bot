@@ -22,10 +22,12 @@ export const config = [
         maxUsdtAmount: 50,
         strategy: {
             identifier: 'ab',
-            askDifferenceThreshold: 0.05,
-            bidDifferenceThreshold: 0.1,
-            sellInvalidationThreshold: 0.05,
-            buyInvalidationThreshold: 0.07,
+            priceRangePercentageAsk: 0.03, // Filter out orders too close to current price - def: 0.03
+            priceRangePercentageBid: 0.03, // Filter out orders too close to current price - def: 0.05
+            askDifferenceThreshold: 0.05, // Filter out nubers within x percentage of eachother - def: 0.05
+            bidDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
+            sellInvalidationThreshold: 0.05, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+            buyInvalidationThreshold: 0.07, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
         },
     },
     {
@@ -38,10 +40,10 @@ export const config = [
         maxUsdtAmount: 50,
         strategy: {
             identifier: 'ab',
-            askDifferenceThreshold: 0.05,
-            bidDifferenceThreshold: 0.1,
-            sellInvalidationThreshold: 0.05,
-            buyInvalidationThreshold: 0.07,
+            askDifferenceThreshold: 0.05, // Filter out nubers within x percentage of eachother - def: 0.05
+            bidDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
+            sellInvalidationThreshold: 0.05, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+            buyInvalidationThreshold: 0.07, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
         },
     },
     {
@@ -54,12 +56,12 @@ export const config = [
         maxUsdtAmount: 50,
         strategy: {
             identifier: 'ab',
-            askDifferenceThreshold: 0.1,
-            bidDifferenceThreshold: 0.1,
-            priceRangePercentageAsk: 0.03, // 0.03
-            priceRangePercentageBid: 0.03, // 0.05
-            sellInvalidationThreshold: 0.1, // 0.03
-            buyInvalidationThreshold: 0.07, // 0.03
+            askDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
+            bidDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
+            priceRangePercentageAsk: 0.03, // Filter out orders too close to current price - def: 0.03
+            priceRangePercentageBid: 0.03, // Filter out orders too close to current price - def: 0.05
+            sellInvalidationThreshold: 0.1, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+            buyInvalidationThreshold: 0.07, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
         },
     },
     {
@@ -72,10 +74,10 @@ export const config = [
         maxUsdtAmount: 50,
         strategy: {
             identifier: 'ab',
-            askDifferenceThreshold: 0.1,
-            bidDifferenceThreshold: 0.1,
-            priceRangePercentageAsk: 0.01, // 0.03
-            priceRangePercentageBid: 0.03,
+            askDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
+            bidDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
+            priceRangePercentageAsk: 0.1, // Filter out orders too close to current price - def: 0.03
+            priceRangePercentageBid: 0.03, // Filter out orders too close to current price - def: 0.05
         },
     },
     {
@@ -88,10 +90,10 @@ export const config = [
         maxUsdtAmount: 100,
         strategy: {
             identifier: 'ab',
-            askDifferenceThreshold: 0.09,
-            bidDifferenceThreshold: 0.09,
-            priceRangePercentageAsk: 0.07, // 0.03
-            priceRangePercentageBid: 0.05,
+            askDifferenceThreshold: 0.09, // Filter out nubers within x percentage of eachother - def: 0.05
+            bidDifferenceThreshold: 0.09, // Filter out nubers within x percentage of eachother - def: 0.05
+            priceRangePercentageAsk: 0.07, // Filter out orders too close to current price - def: 0.03
+            priceRangePercentageBid: 0.05, // Filter out orders too close to current price - def: 0.05
         },
     },
     {
@@ -104,10 +106,40 @@ export const config = [
         maxUsdtAmount: 100,
         strategy: {
             identifier: 'ab',
-            askDifferenceThreshold: 0.05,
-            bidDifferenceThreshold: 0.1,
-            priceRangePercentageAsk: 0.03, // 0.03
-            priceRangePercentageBid: 0.05,
+            askDifferenceThreshold: 0.05, // Filter out nubers within x percentage of eachother - def: 0.05
+            bidDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
+            priceRangePercentageAsk: 0.03, // Filter out orders too close to current price - def: 0.03
+            priceRangePercentageBid: 0.05, // Filter out orders too close to current price - def: 0.05
+        },
+    },
+    {
+        symbol: 'AREA/USDT',
+        exchange: 'bitmart',
+        interval: 15 * 60 * 1000,
+        ignore: false,
+        baseUsdtAmount: 6,
+        minUsdtAmount: 5.1,
+        maxUsdtAmount: 50,
+        strategy: {
+            identifier: 'ab',
+            priceRangePercentageAsk: 0.03, // Filter out orders too close to current price - def: 0.03
+            priceRangePercentageBid: 0.03, // Filter out orders too close to current price - def: 0.05
+            sellInvalidationThreshold: 0.04, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+            buyInvalidationThreshold: 0.04, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+        },
+    },
+    {
+        symbol: 'CAST/USDT',
+        exchange: 'bitmart',
+        interval: 15 * 60 * 1000,
+        ignore: false,
+        baseUsdtAmount: 6,
+        minUsdtAmount: 5.1,
+        maxUsdtAmount: 50,
+        strategy: {
+            identifier: 'ab',
+            askDifferenceThreshold: 0, // Filter out nubers within x percentage of eachother - def: 0.05
+            priceRangePercentageAsk: 0, // Filter out orders too close to current price - def: 0.03
         },
     },
     {
@@ -120,12 +152,12 @@ export const config = [
         maxUsdtAmount: 50,
         strategy: {
             identifier: 'ab',
-            askDifferenceThreshold: 0.1,
-            bidDifferenceThreshold: 0.1,
-            priceRangePercentageAsk: 0.1, // 0.03
-            priceRangePercentageBid: 0.1,
-            sellInvalidationThreshold: 0.1,
-            buyInvalidationThreshold: 0.1,
+            askDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
+            bidDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
+            priceRangePercentageAsk: 0.1, // Filter out orders too close to current price - def: 0.03
+            priceRangePercentageBid: 0.1, // Filter out orders too close to current price - def: 0.05
+            sellInvalidationThreshold: 0.1, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+            buyInvalidationThreshold: 0.1, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
         },
     },
 

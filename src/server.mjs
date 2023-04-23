@@ -1,7 +1,7 @@
 import express from 'express';
 import { spawn } from 'child_process';
 import { config } from './config/pairs.mjs';
-import { startTelegramBot } from './TelegramBot.mjs';
+import { telegramInstance } from './TelegramBot.mjs';
 import { getPairConfig } from './helpers/pairConfig.mjs';
 import { getAllOrdersByPair } from './database/orders.mjs';
 import './logger.mjs';
@@ -32,7 +32,7 @@ app.post('/api/start-bot', async (req, res) => {
 
     // Start CryptAlyzeBot
     try {
-        cryptAlyzeBotProcess = spawn('node', [botPath]);
+        cryptAlyzeBotProcess = spawn('node', [botPath], { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] });
 
         cryptAlyzeBotProcess.stdout.on('data', (data) => {
             console.log(`\x1b[38;5;178m[${new Date().toLocaleString()}]\x1b[0m CryptAlyzeBot: ${data.toString().trim()}`);
@@ -40,6 +40,12 @@ app.post('/api/start-bot', async (req, res) => {
 
         cryptAlyzeBotProcess.stderr.on('data', (data) => {
             console.error(`\x1b[38;5;178m[${new Date().toLocaleString()}]\x1b[0m CryptAlyzeBot: ${data.toString().trim()}`);
+        });
+
+        cryptAlyzeBotProcess.on('message', (message) => {
+            if (message.type === 'TELEGRAM_MESSAGE') {
+                telegramInstance.sendMessage(message.text);
+            }
         });
 
         cryptAlyzeBotProcess.on('close', (code) => {
@@ -114,7 +120,7 @@ const port = 3000;
 
 app.listen(port, () => {
     if (process.env.VITE_TELEGRAM_BOT_STATUS == 'on') {
-        startTelegramBot();
+        telegramInstance.startTelegramBot();
     }
 
     console.log(`Server listening on port ${port}`);
@@ -123,5 +129,43 @@ app.listen(port, () => {
 function isBotRunning() {
     return cryptAlyzeBotProcess !== null;
 }
+
+import { fetchUserTrades } from "./helpers/botHelpers.mjs";
+
+setInterval(async () => {
+    console.log('Fetching trades');
+
+    config.forEach(async (pairConfig) => {
+        if (pairConfig.symbol !== 'default') {
+            // console.log(`Trade Fetcher: Fetching trades for ${pairConfig.symbol} on ${pairConfig.exchange}`);
+            await fetchUserTrades(pairConfig, pairConfig.symbol);
+        }
+    });
+}, 120000); // 2 minutes = 120,000 milliseconds
+
+// function runTradeFetcher() {
+//     console.log('Starting a new trade fetcher process');
+//     const tradeFetcher = spawn('node', ['--max-old-space-size=8128', './src/tradeFetcher.mjs'], { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] });
+
+//     tradeFetcher.stdout.on('data', (data) => {
+//         console.log(`${data.toString().trim()}`);
+//     });
+
+//     tradeFetcher.stderr.on('data', (data) => {
+//         console.error(`${data.toString().trim()}`);
+//     });
+
+//     tradeFetcher.on('message', (message) => {
+//         if (message.type === 'TELEGRAM_MESSAGE') {
+//             telegramInstance.sendMessage(message.text);
+//         }
+//     });
+
+//     tradeFetcher.on('close', (code) => {
+//         console.log(`Trade Fetcher process exited with code ${code}`);
+//     });
+// }
+// // runTradeFetcher();
+// setInterval(runTradeFetcher, 12000);
 
 export default app;

@@ -1,5 +1,5 @@
+import { telegramInstance } from "../TelegramBot.mjs";
 import { insertOrder, getLastOrder } from "../database/orders.mjs";
-//import { sendMessage } from '../TelegramBot.mjs';
 import { ExchangeError } from "ccxt";
 
 export const logSymbol = (pairConfig) => {
@@ -13,26 +13,34 @@ export const fetchUserTrades = async (pairConfig, pair, since) => {
     if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
 
     try {
-        if (lastOrder && lastOrder.length > 0) {
-            const lastOrderTimestamp = lastOrder[0]?.timestamp;
-            const bufferTime = 500; // 0.5 seconds
-            const sinceTimestamp = lastOrderTimestamp ? lastOrderTimestamp + bufferTime : since;
-            const orders = await exchange.fetchMyTrades(pair, sinceTimestamp);
+        const lastOrderTimestamp = lastOrder?.[0]?.timestamp;
+        const sinceTimestamp = lastOrderTimestamp ? lastOrderTimestamp + 500 : since;
+        let orders = [];
 
-            for (const order of orders) {
-                insertOrder(order, pairConfig.exchange);
-                //sendMessage(`New trade ${order.symbol} for ${pairConfig.exchange}`);
-            }
+        if (lastOrderTimestamp) {
+            // console.log(`Fetching trades for ${pair} since ${sinceTimestamp}`);
+            orders = await exchange.fetchMyTrades(pair, sinceTimestamp);
         } else {
-            const orders = await exchange.fetchMyTrades(pair, since);
+            // console.log(`Fetching all trades for ${pair} without timestamp`);
+            orders = await exchange.fetchMyTrades(pair);
+        }
+
+        if (orders.length > 0) {
+            // console.log(`Fetched ${orders.length} new trades for ${pair}`);
             for (const order of orders) {
                 insertOrder(order, pairConfig.exchange);
-                // sendMessage(`New trade ${order.symbol} for ${pairConfig.exchange}`);
             }
+
+            const numOrders = orders.length;
+            const message = numOrders <= 1 ? `New trade ${orders[0].symbol} for ${pairConfig.exchange}` : `${numOrders} new trades ${orders[0].symbol} for ${pairConfig.exchange}`;
+            telegramInstance.sendMessage(message);
+        } else {
+            // console.log(`No new trades for ${pair} since ${sinceTimestamp}`);
         }
     } catch (error) {
         console.log(error);
     }
+
 }
 
 export const fetchOrderBook = async (pairConfig, pair) => {

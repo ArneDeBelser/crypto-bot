@@ -1,10 +1,10 @@
 import { strategyConfigs } from "../config/strategy.mjs";
 import { getAllOrdersByPair } from "../database/orders.mjs";
 import { fetchOrderBook, fetchUserBalanceForPair, fetchOpenOrders, fetchUserTrades, logSymbol, mapBidAsks, cancelOrder, fetchKlines, fetchRealTicker } from "../helpers/botHelpers.mjs";
-import { filterLevels } from "./algoritms/filterlevels.mjs";
-import { filterCloseToCurrentPrice } from "./algoritms/filterclosetocurrentprice.mjs";
-import { filterNumbersWithinXPercentage } from "./algoritms/filternumberswithinxpercentage.mjs";
-import { filterKlineRange } from "./algoritms/filterklinerange.mjs";
+import { filterLevels } from "./algoritms/filterLevels.mjs";
+import { filterCloseToCurrentPrice } from "./algoritms/filterCloseToCurrentPrice.mjs";
+import { filterNumbersWithinXPercentage } from "./algoritms/filterNumbersWithinXPercentage.mjs";
+import { filterKlineRange } from "./algoritms/filterKlineRange.mjs";
 import { calculateAskOrders, calculateBidOrders } from "./algoritms/calculateBidAskOrderAmounts.mjs";
 
 export default async function strategy(pairConfig, pair) {

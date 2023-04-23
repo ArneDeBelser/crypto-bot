@@ -63,8 +63,6 @@ export const drawTestOrderLine = (activeChart, order, side) => {
     let amountUsdt = new BigNumber(order.amountUsdt);
     let formattedAmountUsdt = amountUsdt.toFixed(2);
 
-    console.log(formattedAmountUsdt);
-
     orderLine
         .setPrice(parseFloat(order.price))
         .setQuantity(order.amount)
