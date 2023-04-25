@@ -7,7 +7,7 @@ import { getAllOrdersByPair } from './database/orders.mjs';
 import './logger.mjs';
 
 /* Database */
-import './database/database.mjs';
+await import('./database/database.mjs');
 
 const app = express();
 const botPath = './src/bot.mjs';
@@ -107,7 +107,7 @@ app.get('/api/test-strategy/:pair', async (req, res) => {
         console.log(`Running test for ${pair}`);
         const [pairConfig, strategyModule] = await getPairConfig(config, pair, exchange);
         const strategy = strategyModule.default;
-        const orders = await strategy(pairConfig, pair);
+        const orders = await strategy(pairConfig, pair, true);
 
         res.send({ orders });
     } catch (error) {
@@ -126,10 +126,10 @@ app.listen(port, () => {
     console.log(`\x1b[38;5;178m[${new Date().toLocaleString()}]\x1b[0m Server listening on port ${port}`);
 });
 
-import './fetchTrades.mjs';
-
 function isBotRunning() {
     return cryptAlyzeBotProcess !== null;
 }
+
+await import('./fetchTrades.mjs');
 
 export default app;

@@ -41,6 +41,7 @@ export function createOrdersTable() {
 }
 
 export function checkOrdersTable() {
+    //console.log(`Checking if orders table exist`);
     const sql = `SELECT name FROM sqlite_master WHERE type='table' AND name='orders'`;
     db.get(sql, [], (err, row) => {
         if (err) {
@@ -48,6 +49,7 @@ export function checkOrdersTable() {
             throw err;
         }
         if (!row) {
+            //console.log(`Doesnt exist, creating orders table`);
             createOrdersTable();
         }
     });

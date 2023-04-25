@@ -1,13 +1,13 @@
 import { strategyConfigs } from "../config/strategy.mjs";
 import { getAllOrdersByPair } from "../database/orders.mjs";
-import { fetchOrderBook, fetchUserBalanceForPair, fetchOpenOrders, fetchUserTrades, logSymbol, mapBidAsks, cancelOrder, fetchKlines, fetchRealTicker } from "../helpers/botHelpers.mjs";
+import { fetchOrderBook, fetchUserBalanceForPair, fetchOpenOrders, fetchUserTrades, logSymbol, mapBidAsks, createOrder, cancelOrder, fetchKlines, fetchRealTicker } from "../helpers/botHelpers.mjs";
 import { filterLevels } from "./algoritms/filterLevels.mjs";
 import { filterCloseToCurrentPrice } from "./algoritms/filterCloseToCurrentPrice.mjs";
 import { filterNumbersWithinXPercentage } from "./algoritms/filterNumbersWithinXPercentage.mjs";
 import { filterKlineRange } from "./algoritms/filterKlineRange.mjs";
 import { calculateAskOrders, calculateBidOrders } from "./algoritms/calculateBidAskOrderAmounts.mjs";
 
-export default async function strategy(pairConfig, pair) {
+export default async function strategy(pairConfig, pair, testing = false) {
   console.log(`${logSymbol(pairConfig)} Running "ab" strategy`);
 
   // Setup strategy parameters
@@ -72,13 +72,25 @@ export default async function strategy(pairConfig, pair) {
   askOrders = calculateAskOrders(userBalance, askOrders, ticker.last, minUsdtAmount);
   bidOrders = calculateBidOrders(userBalance, bidOrders, ticker.last, baseUsdtAmount, maxUsdtAmount);
 
-  // Remove all current orders from the book
-  const openOrders = await fetchOpenOrders(pairConfig, pair);
+  if (!testing) { // We pass a var testing via server.mjs endpoint if we are testing the strategy, so that no real orders are deleted/created
+    // Remove all current orders from the book
+    const openOrders = await fetchOpenOrders(pairConfig, pair);
+    openOrders.forEach(order => {
+      cancelOrder(pairConfig, order.id, pair);
+    });
 
-  openOrders.forEach(order => {
-    // logInfo(`Fake cancelling order #${order.id} | ${pair}`)
-    // cancelOrder(order.id, pair);
-  })
+    // Create all ask orders
+    askOrders.forEach(order => {
+      createOrder(pairConfig, pair, 'limit', 'sell', order.amount, order.price);
+    });
+
+    // Create bid ask orders
+    bidOrders.forEach(order => {
+      createOrder(pairConfig, pair, 'limit', 'buy', order.amount, order.price);
+    });
+  } else {
+    console.log('Testing strategy, not setting up orders');
+  }
 
   // This part is needed for testing the strategy, this information is pushed into the TV chart on click "TEST STRATEGY".
   // The actual bot doesn't use this return values

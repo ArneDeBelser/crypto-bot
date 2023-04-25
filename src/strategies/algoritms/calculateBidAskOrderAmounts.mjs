@@ -11,7 +11,7 @@ export function calculateAskOrders(userBalance, orders, ticker, minUsdtAmount) {
 
     let askOrders = orders.map((price, index) => {
         if (index === orders.length - 1) {
-            const amount = remainingUsdt / ticker;
+            const amount = remainingUsdt / price;
             return {
                 price,
                 amount,
@@ -20,14 +20,13 @@ export function calculateAskOrders(userBalance, orders, ticker, minUsdtAmount) {
         }
         return {
             price,
-            amount: usdtPerAskOrder / ticker,
+            amount: usdtPerAskOrder / price,
             amountUsdt: usdtPerAskOrder
         };
     });
 
     return askOrders;
 }
-
 
 export function calculateBidOrders(userBalance, orders, ticker, baseUsdtAmount, maxUsdtAmount) {
     const usdtValue = userBalance.usdtValue;
@@ -38,7 +37,7 @@ export function calculateBidOrders(userBalance, orders, ticker, baseUsdtAmount, 
 
     for (let price of orders) {
         if (availableUsdtForBuys >= baseUsdtAmount) {
-            bidOrders.push({ price, amount: baseUsdtAmount / ticker, amountUsdt: baseUsdtAmount });
+            bidOrders.push({ price, amount: baseUsdtAmount / price, amountUsdt: baseUsdtAmount });
             availableUsdtForBuys -= baseUsdtAmount;
         } else {
             break;

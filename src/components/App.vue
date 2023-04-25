@@ -22,7 +22,16 @@
                         </v-row>
 
                         <v-row no-gutters>
-                            <BreakEvenCalc />
+                            <v-col cols="6">
+                                <v-row no-gutters>
+                                    <BreakEvenCalc />
+                                </v-row>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-row no-gutters>
+                                    <TradingPairs />
+                                </v-row>
+                            </v-col>
                         </v-row>
                     </v-col>
                 </v-row>
@@ -37,6 +46,7 @@ import TopBar from "./TopBar.vue";
 import Sidebar from "./Sidebar.vue";
 import { defineComponent } from "vue";
 import Orderbook from "./Orderbook.vue";
+import TradingPairs from "./TradingPairs.vue";
 import BreakEvenCalc from "./BreakEvenCalc.vue";
 
 export default defineComponent({
@@ -47,6 +57,7 @@ export default defineComponent({
         TopBar,
         Sidebar,
         Orderbook,
+        TradingPairs,
         BreakEvenCalc,
     },
 });

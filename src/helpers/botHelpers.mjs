@@ -142,7 +142,25 @@ export const fetchRealTicker = async (pairConfig, pair) => {
     }
 }
 
-export const cancelOrder = async (orderId, pair) => {
+export const createOrder = async (pairConfig, pair, type, side, amount, price, params = {}) => {
+    const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
+    const exchange = exchangeObject.default;
+    if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
+
+    // console.log('----------');
+    // console.log(amount);
+    // console.log(price);
+    // console.log(amount * price);
+    // console.log('----------');
+
+    await exchange.createOrder(pair, type, side, amount, price, params = {});
+    try {
+    } catch (error) {
+        throw new Error(`Something went wrong while creating order for ${pair}`);
+    }
+}
+
+export const cancelOrder = async (pairConfig, orderId, pair) => {
     try {
         const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
         const exchange = exchangeObject.default;
