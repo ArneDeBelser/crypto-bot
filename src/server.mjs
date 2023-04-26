@@ -117,11 +117,7 @@ app.get('/api/test-strategy/:pair', async (req, res) => {
     }
 });
 
-<<<<<<< HEAD
 const port = process.env.VITE_SERVER_PORT;
-=======
-const port = 3001;
->>>>>>> 73b3cf1d572bd64e1294cc2dd305e2b928db7572
 
 app.listen(port, () => {
     if (process.env.VITE_TELEGRAM_BOT_STATUS == 'on') {
