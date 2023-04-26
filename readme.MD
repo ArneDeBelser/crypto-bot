@@ -12,3 +12,13 @@
 2. Run `node ./src/server.mjs`, this will start up the server
 
 Note: for mac you should set cors port to 8081, 8080 sometimes doesnt seem to work.
+
+
+pm2 start npm --name "CB" -- run dev > output.log
+pm2 start npm --name "CS" -- run server
+
+pm2 delete CryptB
+pm2 delete CryptS
+
+
+nssm.exe install CryptB "C:\User\Afluxx\AppData\Roaming\npm\npm" ["run", "dev"]

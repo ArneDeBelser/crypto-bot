@@ -2,7 +2,11 @@ require('dotenv/config');
 // JavaScript CORS Proxy
 // Save this in a file like cors.js and run with `node cors [port]`
 // It will listen for your requests on the port you pass in command line or port 8080 by default
+<<<<<<< HEAD
 let port = (process.argv.length > 2) ? parseInt(process.argv[2]) : process.env.VITE_CORS_PORT; // default
+=======
+let port = (process.argv.length > 2) ? parseInt(process.argv[2]) : 8081; // default
+>>>>>>> 73b3cf1d572bd64e1294cc2dd305e2b928db7572
 const cors_proxy = require('cors-anywhere');
 cors_proxy.createServer(function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
