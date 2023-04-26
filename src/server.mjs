@@ -1,10 +1,11 @@
+import './logger.mjs';
+import 'dotenv/config';
 import express from 'express';
 import { spawn } from 'child_process';
 import { config } from './config/pairs.mjs';
 import { telegramInstance } from './TelegramBot.mjs';
 import { getPairConfig } from './helpers/pairConfig.mjs';
 import { getAllOrdersByPair } from './database/orders.mjs';
-import './logger.mjs';
 
 /* Database */
 await import('./database/database.mjs');
@@ -116,7 +117,7 @@ app.get('/api/test-strategy/:pair', async (req, res) => {
     }
 });
 
-const port = 3000;
+const port = process.env.VITE_SERVER_PORT;
 
 app.listen(port, () => {
     if (process.env.VITE_TELEGRAM_BOT_STATUS == 'on') {
