@@ -51,7 +51,7 @@ export const config = [
     {
         symbol: 'FYN/USDT',
         exchange: 'bitmart',
-        interval: 50 * 60 * 1000,
+        interval: 15 * 60 * 1000,
         ignore: false,
         baseUsdtAmount: 6,
         minUsdtAmount: 5.1,
@@ -69,7 +69,7 @@ export const config = [
     {
         symbol: 'HZM/USDT',
         exchange: 'bitmart',
-        interval: 50 * 60 * 1000,
+        interval: 15 * 60 * 1000,
         ignore: false,
         baseUsdtAmount: 6,
         minUsdtAmount: 5.1,
@@ -82,6 +82,47 @@ export const config = [
             sellInvalidationThreshold: 0.05, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
             buyInvalidationThreshold: 0.05, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
             klineRangeLowAdjustmentFactor: 0.8 // Adjust the range of valid prices obtained from trading data to filter out irrelevant data based on the current trading price - def: 0.9
+        },
+    },
+    {
+        symbol: 'MVEDA/USDT',
+        exchange: 'bitmart',
+        interval: 17 * 60 * 1000,
+        ignore: false,
+        baseUsdtAmount: 6,
+        minUsdtAmount: 5.1,
+        maxUsdtAmount: 60,
+        strategy: {
+            identifier: 'ab',
+            askDifferenceThreshold: 0.10, // Filter out nubers within x percentage of eachother - def: 0.05
+            bidDifferenceThreshold: 0.25, // Filter out nubers within x percentage of eachother - def: 0.05
+            priceRangePercentageBid: 0.1, // Filter out orders too close to current price - def: 0.05
+            sellInvalidationThreshold: 0.05, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+            buyInvalidationThreshold: 0.1, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+        },
+    },
+    // {
+    //     symbol: 'MBET/USDT',
+    //     exchange: 'bitmart',
+    //     interval: 20 * 60 * 1000,
+    //     ignore: false,
+    //     baseUsdtAmount: 6,
+    //     minUsdtAmount: 5.1,
+    //     maxUsdtAmount: 60,
+    //     strategy: {
+    //         identifier: 'ab',
+    //     },
+    // },
+    {
+        symbol: 'ZEON/USDT',
+        exchange: 'bitmart',
+        interval: 20 * 60 * 1000,
+        ignore: false,
+        baseUsdtAmount: 6,
+        minUsdtAmount: 5.1,
+        maxUsdtAmount: 60,
+        strategy: {
+            identifier: 'ab',
         },
     },
     // {

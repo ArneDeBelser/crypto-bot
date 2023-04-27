@@ -29,7 +29,7 @@ export const drawOrderLine = (activeChart, order) => {
     return orderLine
         .setPrice(order.price)
         .setQuantity(order.amount)
-        .setText(order.side == "buy" ? "BUY" : "SELL")
+        .setText(timeSince(order.timestamp) + ' | ' + (order.side == "buy" ? "BUY" : "SELL"))
         .setLineColor(setColor(order.side))
         .setBodyFont("12px Roboto, sans-serif")
         .setBodyBorderColor(setColor(order.side))
@@ -101,4 +101,17 @@ function setTestOrderLineText(side) {
 
 function setTestOrderLineColor(side) {
     return side == "buy" ? "#52a42e" : "#c44242";
+}
+
+function timeSince(dateString) {
+    const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
+    const intervals = { 'day': 86400, 'hour': 3600, 'minute': 60, 'second': 1 };
+
+    for (const [label, secondsPerInterval] of Object.entries(intervals)) {
+        const count = Math.floor(seconds / secondsPerInterval);
+        if (count > 0) {
+            return `${count} ${label}${count === 1 ? '' : 's'} ago`;
+        }
+    }
+    return 'just now';
 }

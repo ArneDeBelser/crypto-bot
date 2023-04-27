@@ -14,9 +14,14 @@
                                     </Suspense>
                                 </v-row>
                             </v-col>
-                            <v-col cols="3">
+                            <v-col cols="2">
                                 <v-row no-gutters>
                                     <Orderbook />
+                                </v-row>
+                            </v-col>
+                            <v-col cols="1">
+                                <v-row no-gutters>
+                                    <TradingPairs />
                                 </v-row>
                             </v-col>
                         </v-row>
@@ -27,7 +32,6 @@
                                     <BreakEvenCalc />
                                 </v-row>
                             </v-col>
-
                         </v-row>
                     </v-col>
                 </v-row>
@@ -42,6 +46,7 @@ import TopBar from "./TopBar.vue";
 import Sidebar from "./Sidebar.vue";
 import { defineComponent } from "vue";
 import Orderbook from "./Orderbook.vue";
+import TradingPairs from "./Tradingpairs.vue";
 import BreakEvenCalc from "./BreakEvenCalc.vue";
 
 export default defineComponent({
@@ -52,6 +57,7 @@ export default defineComponent({
         TopBar,
         Sidebar,
         Orderbook,
+        TradingPairs,
         BreakEvenCalc,
     },
 });

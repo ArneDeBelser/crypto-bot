@@ -46,3 +46,30 @@ Starting CryptAlyze Bot Interface
 [1]     at Module.load (internal/modules/cjs/loader.js:928:32)
 [1]     at Function.Module._load (internal/modules/cjs/loader.js:769:14)[39m
 [1] vite exited with code 1
+Terminate batch job (Y/N)? [0] ^Cnode cors & exited with code 0
+Starting CryptAlyze Bot Interface
+
+> cryptalyze-bot@1.0.0 dev
+> concurrently "node cors &" "vite"
+
+[0] [2023-04-27T00:12:49.966Z] CORS Anywhere started on port 8081
+[1] 
+[1]   [32m[1mVITE[22m v4.3.1[39m  [2mready in [0m[1m1442[22m[2m[0m ms[22m
+[1] 
+[1]   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[1] [2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+Terminate batch job (Y/N)? [0] ^C^Cnode cors & exited with code 0
+[1] vite exited with code 3221225786
+Starting CryptAlyze Bot Interface
+
+> cryptalyze-bot@1.0.0 dev
+> concurrently "node cors &" "vite"
+
+[0] [2023-04-27T06:12:33.394Z] CORS Anywhere started on port 8081
+[1] 
+[1]   [32m[1mVITE[22m v4.3.1[39m  [2mready in [0m[1m5075[22m[2m[0m ms[22m
+[1] 
+[1]   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[1] [2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+Terminate batch job (Y/N)? [0] ^C^Cvite exited with code 3221225786
+[0] node cors & exited with code 0

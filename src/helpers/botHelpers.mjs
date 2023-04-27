@@ -1,6 +1,6 @@
 import { telegramInstance } from "../TelegramBot.mjs";
 import { insertOrder, getLastOrder } from "../database/orders.mjs";
-import { ExchangeError } from "ccxt";
+import { ExchangeError, InsufficientFunds } from "ccxt";
 
 export const logSymbol = (pairConfig) => {
     return `\x1b[33m[\x1b[32m${pairConfig.symbol}\u001b[37;1m:\u001b[31;1m${pairConfig.exchange}\u001b[37;1m:\u001b[34;1m${pairConfig.strategy.identifier}\x1b[33m]\x1b[0m`;
@@ -38,53 +38,50 @@ export const fetchUserTrades = async (pairConfig, pair, since) => {
             // console.log(`No new trades for ${pair} since ${sinceTimestamp}`);
         }
     } catch (error) {
-        console.log(error);
+        if (error instanceof ExchangeError) {
+            telegramInstance.sendMessage("Exchange error occured fetching user trades:" + error.message);
+            console.log("Exchange error occured fetching user trades:" + error.message);
+        } else {
+            console.log(error);
+        }
     }
 
 }
 
 export const fetchOrderBook = async (pairConfig, pair) => {
-    let orderBook = null;
-
     try {
-        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
-        const exchange = exchangeObject.default;
-        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
-
-        orderBook = await exchange.fetchOrderBook(pair);
+        const exchange = (await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`)).default;
+        await exchange.signIn?.();
+        return await exchange.fetchOrderBook(pair);
     } catch (error) {
-        throw new Error('Something went wrong while fetching the orderbook', error);
+        const errorMessage = `Error occurred fetching orderbook ${pair}: ${error.message}`;
+        telegramInstance.sendMessage(errorMessage);
+        console.error(errorMessage);
+        return null;
     }
-
-    return orderBook;
-}
+};
 
 export const fetchKlines = async (pairConfig, pair, timeframe) => {
-    let klines = null;
-
     try {
-        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
-        const exchange = exchangeObject.default;
-        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
-
-        klines = await exchange.fetchOHLCV(pair, timeframe);
+        const exchange = (await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`)).default;
+        await exchange.signIn?.();
+        return await exchange.fetchOHLCV(pair, timeframe);
     } catch (error) {
-        throw new Error('Something went wrong while fetching the candlestick data');
+        const errorMessage = `Error occurred fetching klines ${pair}: ${error.message}`;
+        telegramInstance.sendMessage(errorMessage);
+        console.error(errorMessage);
+        return null;
     }
-
-    return klines;
-}
-
+};
 export const fetchUserBalanceForPair = async (pairConfig, pair) => {
     try {
-        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
-        const exchange = exchangeObject.default;
-        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
+        const exchange = (await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`)).default;
+        await exchange.signIn?.(); // Use optional chaining to check if signIn is a function
         const balance = await exchange.fetchBalance();
         const ticker = await fetchRealTicker(pairConfig, pair);
         const [base, quote] = pair.split('/');
-        const baseBalance = balance[base] ? balance[base].total : 0;
-        const quoteBalance = balance[quote] ? balance[quote].total : 0;
+        const baseBalance = balance[base]?.total || 0; // Use optional chaining and nullish coalescing to simplify the code
+        const quoteBalance = balance[quote]?.total || 0;
 
         return {
             base: baseBalance,
@@ -92,85 +89,90 @@ export const fetchUserBalanceForPair = async (pairConfig, pair) => {
             usdtValue: parseFloat(baseBalance) * parseFloat(ticker.last),
         };
     } catch (error) {
-        console.error(error);
+        const errorMessage = `Error occurred fetching user balance for pair ${pair}: ${error.message}`;
+        telegramInstance.sendMessage(errorMessage);
+        console.error(errorMessage);
         return null;
     }
-}
+};
 
 export const fetchOpenOrders = async (pairConfig, pair) => {
-    let openOrders = null;
-
     try {
-        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
-        const exchange = exchangeObject.default;
-        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
-
-        openOrders = await exchange.fetchOpenOrders(pair);
+        const exchange = (await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`)).default;
+        await exchange.signIn?.(); // Use optional chaining to check if signIn is a function
+        return await exchange.fetchOpenOrders(pair);
     } catch (error) {
-        throw new Error('Something went wrong while fetching the candlestick data');
+        const errorMessage = `Error occurred fetching open orders for pair ${pair}: ${error.message}`;
+        telegramInstance.sendMessage(errorMessage);
+        console.error(errorMessage);
+        return null;
     }
-
-    return openOrders;
-}
+};
 
 export const fetchRealTicker = async (pairConfig, pair) => {
     try {
-        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
-        const exchange = exchangeObject.default;
-        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
+        const exchange = (await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`)).default;
+        await exchange.signIn?.(); // Use optional chaining to check if signIn is a function
+        let ticker = null;
 
-        // Some hocus pocus to get ticker data in case the exchange has not fetchTicker availability
-        let ticker;
         try {
             ticker = await exchange.fetchTicker(pair);
         } catch (error) {
             if (error instanceof ExchangeError) {
-                try {
-                    const ohlcv = await exchange.fetchOHLCV(pair, '1m', undefined, 1);
-                    ticker = {};
-                    ticker.last = ohlcv[0][4];
-                } catch (error) {
-                    throw new Error('Something went wrong while trying to get ticker, even OHLCV is not working - Arne');
-                }
+                const ohlcv = await exchange.fetchOHLCV(pair, '1m', undefined, 1);
+                ticker = { last: ohlcv[0][4] };
+            } else {
+                throw error; // Rethrow error if it's not an ExchangeError
             }
         }
 
         return ticker;
     } catch (error) {
-        console.error(error);
+        const errorMessage = `Error occurred fetching real ticker for pair ${pair}: ${error.message}`;
+        telegramInstance.sendMessage(errorMessage);
+        console.error(errorMessage);
         return null;
     }
-}
+};
 
 export const createOrder = async (pairConfig, pair, type, side, amount, price, params = {}) => {
-    const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
-    const exchange = exchangeObject.default;
-    if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
-
-    // console.log('----------');
-    // console.log(amount);
-    // console.log(price);
-    // console.log(amount * price);
-    // console.log('----------');
-
-    await exchange.createOrder(pair, type, side, amount, price, params = {});
     try {
+        const exchange = (await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`)).default;
+        await exchange.signIn?.(); // Use optional chaining to check if signIn is a function
+        await exchange.createOrder(pair, type, side, amount, price, params);
     } catch (error) {
-        throw new Error(`Something went wrong while creating order for ${pair}`);
+        const errorMessages = {
+            ExchangeError: `Exchange error occurred: ${pair} ${error.message}`,
+            InsufficientFunds: `Insufficient funds error occurred: ${pair} ${error.message}`,
+            default: `Error occurred creating order: ${pair} ${error.message}`,
+        };
+        const errorMessage = errorMessages[error.name] || errorMessages.default;
+        telegramInstance.sendMessage(errorMessage);
+        console.log(errorMessage);
+        console.error(errorMessage);
+        return null;
     }
-}
+};
 
 export const cancelOrder = async (pairConfig, orderId, pair) => {
     try {
-        const exchangeObject = await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`);
-        const exchange = exchangeObject.default;
-        if (typeof exchange.signIn === 'function') await exchange.signIn(); // Only for probit
-
+        const exchange = (await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`)).default;
+        await exchange.signIn?.(); // Use optional chaining to check if signIn is a function
         await exchange.cancelOrder(orderId, pair);
     } catch (error) {
-        throw new Error(`Something went wrong while cancelling order #${orderId} | ${pair}`);
+        const errorMessages = {
+            ExchangeError: `Exchange error occurred: ${pair} ${error.message}`,
+            InsufficientFunds: `Insufficient funds error occurred: ${pair} ${error.message}`,
+            default: `Error occurred cancelling order: ${pair} ${error.message}`,
+        };
+        const errorMessage = errorMessages[error.name] || errorMessages.default;
+        telegramInstance.sendMessage(errorMessage);
+        console.log(errorMessage);
+        console.error(errorMessage);
+        return null;
     }
-}
+};
+
 
 export const mapBidAsks = async (orderBook) => {
     return Object.entries(orderBook)
