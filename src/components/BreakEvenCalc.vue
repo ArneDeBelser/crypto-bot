@@ -60,10 +60,27 @@ export default {
             return this.$store.state.orders
         },
 
+        avgBuyPrice() {
+            let totalCost = 0;
+            let totalAmount = 0;
+
+            for (let i = 0; i < this.orders.length; i++) {
+                const purchase = this.orders[i];
+                if (purchase.side === 'buy' && purchase.amount !== 0) {
+                    totalCost += purchase.cost;
+                    totalAmount += purchase.amount;
+                }
+            }
+
+            const avgBuyPrice = totalCost / totalAmount;
+            return avgBuyPrice;
+        },
+
         breakEvenPrice() {
             let totalCost = 0;
             let totalFees = 0;
             let totalAmount = 0;
+
 
             this.orders.forEach((order) => {
                 if (order.side === 'buy') {
@@ -77,7 +94,13 @@ export default {
                 }
             });
 
+            console.log('totalCost', totalCost);
+            console.log('totalFees', totalFees);
+            console.log('totalAmount', totalAmount);
+
             const netCost = totalCost + totalFees;
+            console.log('netCost', netCost);
+            console.log('sum', netCost / totalAmount);
 
             return this.convertScientificToFloat(netCost / totalAmount);
         },
@@ -107,10 +130,22 @@ export default {
                 .reduce((total, order) => total + order.cost, 0);
         },
 
+        totalAmountBought() {
+            return this.orders
+                .filter((order) => order.side === "buy")
+                .reduce((total, order) => total + order.amount, 0);
+        },
+
         totalUsdtSold() {
             return this.orders
                 .filter((order) => order.side === "sell")
                 .reduce((total, order) => total + order.cost, 0);
+        },
+
+        totalAmountSold() {
+            return this.orders
+                .filter((order) => order.side === "sell")
+                .reduce((total, order) => total + order.amount, 0);
         },
 
         realizedPnlPercentage() {
@@ -359,10 +394,6 @@ export default {
 
             return numberSign < 0 ? "-" + num : num;
         }
-    },
-
-    mounted() {
-        this.orders = this.$store.state.orders;
     },
 };
 </script>

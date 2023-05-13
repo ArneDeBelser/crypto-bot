@@ -112,7 +112,10 @@ export default {
         async fetchUserTrades() {
             try {
                 const response = await axios.get(`${appUrl}api/get-orders/${this.exchange}?pair=${this.selectedMarketId}`);
+                console.log(response.data.orders);
                 this.userTrades = response.data.orders;
+
+                console.log(response.data.orders);
 
                 this.$store.commit('setOrders', this.userTrades);
             } catch (error) {

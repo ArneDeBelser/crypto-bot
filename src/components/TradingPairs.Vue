@@ -4,11 +4,9 @@
             <v-list dense>
                 <v-list-item v-for="(item, index) in configz" :key="index" @click="showModal(index)"
                     @mouseleave="hideModal">
-                    <v-list-item-content>
-                        <v-list-item-title>
-                            {{ item.symbol }}
-                        </v-list-item-title>
-                    </v-list-item-content>
+                    <v-list-item-title>
+                        {{ item.symbol }}
+                    </v-list-item-title>
                 </v-list-item>
             </v-list>
         </div>

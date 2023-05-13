@@ -61,11 +61,11 @@ export const fetchOrderBook = async (pairConfig, pair) => {
     }
 };
 
-export const fetchKlines = async (pairConfig, pair, timeframe) => {
+export const fetchKlines = async (pairConfig, pair, timeframe, since = undefined, limit = undefined) => {
     try {
         const exchange = (await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`)).default;
         await exchange.signIn?.();
-        return await exchange.fetchOHLCV(pair, timeframe);
+        return await exchange.fetchOHLCV(pair, timeframe, since, limit);
     } catch (error) {
         const errorMessage = `Error occurred fetching klines ${pair}: ${error.message}`;
         telegramInstance.sendMessage(errorMessage);
@@ -142,8 +142,8 @@ export const createOrder = async (pairConfig, pair, type, side, amount, price, p
         await exchange.createOrder(pair, type, side, amount, price, params);
     } catch (error) {
         const errorMessages = {
-            ExchangeError: `Exchange error occurred: ${pair} ${error.message}`,
-            InsufficientFunds: `Insufficient funds error occurred: ${pair} ${error.message}`,
+            ExchangeError: `Exchange error occurred creating order: ${pair} ${error.message}`,
+            InsufficientFunds: `Insufficient funds error creating order: ${pair} | ${type} | ${side} | amount: ${amount} | price: ${price}`,
             default: `Error occurred creating order: ${pair} ${error.message}`,
         };
         const errorMessage = errorMessages[error.name] || errorMessages.default;
@@ -161,8 +161,8 @@ export const cancelOrder = async (pairConfig, orderId, pair) => {
         await exchange.cancelOrder(orderId, pair);
     } catch (error) {
         const errorMessages = {
-            ExchangeError: `Exchange error occurred: ${pair} ${error.message}`,
-            InsufficientFunds: `Insufficient funds error occurred: ${pair} ${error.message}`,
+            ExchangeError: `Exchange error occurred cancelling order: ${pair} ${error.message}`,
+            InsufficientFunds: `Insufficient funds error cancelling order: ${pair} | #Order ID: ${orderId}`,
             default: `Error occurred cancelling order: ${pair} ${error.message}`,
         };
         const errorMessage = errorMessages[error.name] || errorMessages.default;

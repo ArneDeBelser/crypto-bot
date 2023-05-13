@@ -4,14 +4,18 @@ export const filterKlineRange = (klines, orderbook, currentPrice, klineRangeLowA
     let low = Math.min(...klines.map(kline => kline[3]));
 
     // Check if the current price is within 10% of the high or low and adjust the range accordingly
-    const percentHigh = high * klineRangeLowAdjustmentFactor;
-    const percentLow = low * klineRangeHighAdjustmentFactor;
+    // console.log('lowfirst', low);
+
+    const percentHigh = high * klineRangeHighAdjustmentFactor;
+    const percentLow = low * klineRangeLowAdjustmentFactor;
 
     if (currentPrice <= percentHigh) {
         low *= klineRangeLowAdjustmentFactor;
     } else if (currentPrice >= percentLow) {
         high *= klineRangeHighAdjustmentFactor;
     }
+
+    //console.log('lowsecond', percentLow);
 
     // Filter out the orderbook data that falls outside the klines range
     const filteredOrderbook = orderbook.filter(price => {

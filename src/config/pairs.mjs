@@ -6,7 +6,7 @@ export const config = [
         interval: 15 * 60 * 1000,
         baseUsdtAmount: 6,
         minUsdtAmount: 5.1,
-        maxUsdtAmount: 60,
+        maxUsdtAmount: 35,
         ignore: true,
         strategy: {
             identifier: 'ab',
@@ -19,15 +19,15 @@ export const config = [
         ignore: false,
         baseUsdtAmount: 6,
         minUsdtAmount: 5.1,
-        maxUsdtAmount: 100,
+        maxUsdtAmount: 35,
         strategy: {
             identifier: 'ab',
-            askDifferenceThreshold: 0.05, // Filter out nubers within x percentage of eachother - def: 0.05
+            askDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
             bidDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
             priceRangePercentageAsk: 0.03, // Filter out orders too close to current price - def: 0.03
             priceRangePercentageBid: 0.05, // Filter out orders too close to current price - def: 0.05
             sellInvalidationThreshold: 0.1, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
-            buyInvalidationThreshold: 0.1, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+            buyInvalidationThreshold: 0.05, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
         },
     },
     {
@@ -37,7 +37,7 @@ export const config = [
         ignore: false,
         baseUsdtAmount: 6,
         minUsdtAmount: 5.1,
-        maxUsdtAmount: 60,
+        maxUsdtAmount: 35,
         strategy: {
             identifier: 'ab',
             askDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
@@ -55,7 +55,7 @@ export const config = [
         ignore: false,
         baseUsdtAmount: 6,
         minUsdtAmount: 5.1,
-        maxUsdtAmount: 60,
+        maxUsdtAmount: 35,
         strategy: {
             identifier: 'ab',
             askDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
@@ -73,15 +73,15 @@ export const config = [
         ignore: false,
         baseUsdtAmount: 6,
         minUsdtAmount: 5.1,
-        maxUsdtAmount: 60,
+        maxUsdtAmount: 35,
         strategy: {
             identifier: 'ab',
             askDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
             bidDifferenceThreshold: 0.04, // Filter out nubers within x percentage of eachother - def: 0.05
-            priceRangePercentageBid: 0.03, // Filter out orders too close to current price - def: 0.05
-            sellInvalidationThreshold: 0.05, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
-            buyInvalidationThreshold: 0.05, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
-            klineRangeLowAdjustmentFactor: 0.8 // Adjust the range of valid prices obtained from trading data to filter out irrelevant data based on the current trading price - def: 0.9
+            priceRangePercentageBid: 0.05, // Filter out orders too close to current price - def: 0.05
+            sellInvalidationThreshold: 0.1, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+            buyInvalidationThreshold: 0.1, // Filter out numbers to close to already bought levels in this iteration - def: 0.03
+            klineRangeLowAdjustmentFactor: 0.1 // Adjust the range of valid prices obtained from trading data to filter out irrelevant data based on the current trading price - def: 0.9
         },
     },
     {
@@ -91,7 +91,7 @@ export const config = [
         ignore: false,
         baseUsdtAmount: 6,
         minUsdtAmount: 5.1,
-        maxUsdtAmount: 60,
+        maxUsdtAmount: 35,
         strategy: {
             identifier: 'ab',
             askDifferenceThreshold: 0.10, // Filter out nubers within x percentage of eachother - def: 0.05
@@ -120,9 +120,11 @@ export const config = [
         ignore: false,
         baseUsdtAmount: 6,
         minUsdtAmount: 5.1,
-        maxUsdtAmount: 60,
+        maxUsdtAmount: 35,
         strategy: {
             identifier: 'ab',
+            askDifferenceThreshold: 0.01, // Filter out nubers within x percentage of eachother - def: 0.05
+            bidDifferenceThreshold: 0.1, // Filter out nubers within x percentage of eachother - def: 0.05
         },
     },
     // {
@@ -267,16 +269,16 @@ export const config = [
     // },
 
     // Start Probit
-    // {
-    //     symbol: 'default',
-    //     exchange: 'probit',
-    //     interval: 60 * 60 * 1000,
-    //     ignore: true,
-    //     baseUsdtAmount: 6,
-    //     minUsdtAmount: 1.1,
-    //     maxUsdtAmount: 60,
-    //     strategy: {
-    //         identifier: 'ab',
-    //     },
-    // },
+    {
+        symbol: 'default',
+        exchange: 'probit',
+        interval: 60 * 60 * 1000,
+        ignore: true,
+        baseUsdtAmount: 6,
+        minUsdtAmount: 1.1,
+        maxUsdtAmount: 60,
+        strategy: {
+            identifier: 'ab',
+        },
+    },
 ];

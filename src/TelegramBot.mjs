@@ -127,6 +127,9 @@ class Telegram {
                     if (error.code != 'ECONNRESET') {
                         console.error('TelegramBot: Failed to get bot status:', error.code);
                     }
+                    if (error.code != 'ETELEGRAM') {
+                        console.error('TelegramBot: Polling Error, two polls at same time', error.code);
+                    }
                 }
             }, 5000);
         }
