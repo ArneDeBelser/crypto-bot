@@ -73,6 +73,7 @@ export const fetchKlines = async (pairConfig, pair, timeframe, since = undefined
         return null;
     }
 };
+
 export const fetchUserBalanceForPair = async (pairConfig, pair) => {
     try {
         const exchange = (await import(`../exchanges/${pairConfig.exchange}/nodeExchange.mjs`)).default;

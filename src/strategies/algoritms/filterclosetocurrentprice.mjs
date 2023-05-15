@@ -30,25 +30,25 @@ export const filterCloseToCurrentPriceAsks = (percentage, currentPrice, prices, 
 
     if (side === "up") {
         maxPriceDistance = currentPrice * (1 + percentage);
-        // console.log("Max price distance:", maxPriceDistance);
+       // console.log("Max price distance:", maxPriceDistance);
 
         if (lastTradeInfo && lastTradeInfo.lastOrderType === 'buy') {
             minPriceDistance = lastTradeInfo.lastBuyPrice * (1 + 0.08);  // Calculating the 8% profit from the last buy
-            // console.log("Min price distance:", minPriceDistance);
+          //  console.log("Min price distance:", minPriceDistance);
         }
     } else if (side === "down") {
         maxPriceDistance = currentPrice * (1 - percentage);
-        // console.log("Max price distance:", maxPriceDistance);
+       // console.log("Max price distance:", maxPriceDistance);
     }
 
     const filteredPrices = prices.filter(function (price) {
         if (side === "up") {
-            const isWithinRange = (parseFloat(price) >= maxPriceDistance && parseFloat(price) <= currentPrice) || parseFloat(price) >= minPriceDistance;
-            //  console.log(`Price: ${price}, Is within range: ${isWithinRange}`);
+            const isWithinRange = parseFloat(price) >= maxPriceDistance || (parseFloat(price) >= currentPrice && parseFloat(price) >= minPriceDistance);
+            //console.log(`Price: ${price}, Is within range: ${isWithinRange}`);
             return isWithinRange;
         } else if (side === "down") {
             const isWithinRange = parseFloat(price) >= maxPriceDistance;
-            //   console.log(`Price: ${price}, Is within range: ${isWithinRange}`);
+           // console.log(`Price: ${price}, Is within range: ${isWithinRange}`);
             return isWithinRange;
         }
     });

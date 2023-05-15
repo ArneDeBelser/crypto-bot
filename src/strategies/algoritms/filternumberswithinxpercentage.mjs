@@ -1,4 +1,8 @@
-export const filterNumbersWithinXPercentage = (arr, threshold) => {
+export const filterNumbersWithinXPercentage = (arr, threshold = 0) => {
+    if (arr.length === 0) {
+        return []; // Return an empty array if the input array is empty
+    }
+
     const result = [arr[0]];
 
     for (let i = 1; i < arr.length; i++) {

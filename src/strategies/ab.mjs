@@ -8,6 +8,7 @@ import { filterKlineRange } from "./algoritms/filterKlineRange.mjs";
 import { calculateAskOrders, calculateBidOrders } from "./algoritms/calculateBidAskOrderAmounts.mjs";
 import { bigMoveDetected } from "./algoritms/bigmove.mjs";
 import { getLastTradeInfo } from "./algoritms/getlastbuy.mjs";
+import { logToFile } from "../filelogger.mjs";
 
 export default async function strategy(pairConfig, pair, testing = false) {
   console.log(`${logSymbol(pairConfig)} Running "ab" strategy`);
@@ -29,15 +30,16 @@ export default async function strategy(pairConfig, pair, testing = false) {
   const sellInvalidationThreshold = pairConfig.strategy.sellInvalidationThreshold || strategyConfigs.ab.sellInvalidationThreshold.defaultValue;
   const buyInvalidationThreshold = pairConfig.strategy.buyInvalidationThreshold || strategyConfigs.ab.buyInvalidationThreshold.defaultValue;
 
+  const bigMoveThreshold = pairConfig.strategy.bigMoveThreshold || strategyConfigs.ab.bigMoveThreshold.defaultValue;
+
   // Fetching all the required data
   // Fetch new orders and assign all orders to trades which is later used
   await fetchUserTrades(pairConfig, pair);
   const trades = await getAllOrdersByPair(pairConfig.exchange, pair);
-  //  console.log(trades);
+  // console.log(trades);
 
   // Fetch user balance so we know the USDT value for the given pair
   const userBalance = await fetchUserBalanceForPair(pairConfig, pair);
-
 
   // Fetch orderbook so we can set up our levels
   const orderBook = await fetchOrderBook(pairConfig, pair);
@@ -50,56 +52,57 @@ export default async function strategy(pairConfig, pair, testing = false) {
   // Run strategy
   // Filter out price levels that are out of kline range, by changing '1d' to f.e. '4h' you can make the range more "tight"
   const klines = await fetchKlines(pairConfig, pair, '4h');
-  const isBigMove = bigMoveDetected(klines);
-
-  //  console.log(klines);
-  //console.log(isBigMove);
+  const isBigMove = bigMoveDetected(klines, bigMoveThreshold);
+  //console.log(klines);
+  // logToFile(klines);
+  // console.log(isBigMove);
 
   // console.log('raw', bids);
-  let askOrders = filterKlineRange(klines, asks, orderBook.asks[0][0], klineRangeLowAdjustmentFactor, klineRangeHighAdjustmentFactor);
-  let bidOrders = filterKlineRange(klines, bids, orderBook.bids[0][0], klineRangeLowAdjustmentFactor, klineRangeHighAdjustmentFactor);
-  console.log('filterKlineRange ran', askOrders);
+  let askLevels = filterKlineRange(klines, asks, orderBook.asks[0][0], klineRangeLowAdjustmentFactor, klineRangeHighAdjustmentFactor);
+  let bidLevels = filterKlineRange(klines, bids, orderBook.bids[0][0], klineRangeLowAdjustmentFactor, klineRangeHighAdjustmentFactor);
+  //console.log('filterKlineRange ran', bidLevels);
 
   // Filter out orders too close to current price
   if (isBigMove.isBigMove === true) {
+    //console.log('bigmove happend');
     // If we encouter a big move, we put our bid orders very low
-    priceRangePercentageBid = isBigMove.percentageChange * 0.5;
+    priceRangePercentageBid = isBigMove.percentageDifference * 0.5;
+    // console.log('priceRangePercentageBid changed to:', priceRangePercentageBid);
   }
 
   // Get Last trade info, if it's a buy we filter our price levels accordignly
   const lastTradeInfo = getLastTradeInfo(trades);
   // console.log(lastTradeInfo);
 
-  //console.log('askOrders', askOrders);
+  //console.log('askLevels', askLevels);
   // console.log('priceRangePercentageBid', priceRangePercentageBid);
-  askOrders = filterCloseToCurrentPriceAsks(priceRangePercentageAsk, orderBook.asks[0][0], askOrders, "up", lastTradeInfo);
-  bidOrders = filterCloseToCurrentPriceBids(priceRangePercentageBid, orderBook.bids[0][0], bidOrders, "down");
-  console.log('filterCloseToCurrentPrice ran', askOrders);
+  askLevels = filterCloseToCurrentPriceAsks(priceRangePercentageAsk, orderBook.asks[0][0], askLevels, "up", lastTradeInfo);
+  bidLevels = filterCloseToCurrentPriceBids(priceRangePercentageBid, orderBook.bids[0][0], bidLevels, "down");
+  // console.log('filterCloseToCurrentPrice ran', askLevels);
 
-  //console.log('askOrders', askOrders);
+  //console.log('askLevels', askLevels);
   // Filter out numbers to close to already bought levels in this iteration
-  askOrders = filterLevelsAsks(trades, askOrders, sellInvalidationThreshold, 'sell');
-  bidOrders = filterLevelsBids(trades, bidOrders, buyInvalidationThreshold);
-  console.log('filterLevels ran', askOrders);
+  askLevels = filterLevelsAsks(trades, askLevels, sellInvalidationThreshold, 'sell');
+  bidLevels = filterLevelsBids(trades, bidLevels, buyInvalidationThreshold);
+  // console.log('filterLevels ran', askLevels);
 
   // Filter out nubers within x percentage of eachother
-  askOrders = filterNumbersWithinXPercentage(askOrders, askDifferenceThreshold); // We reserve here so that the last order (closest to current price) is checked first
-  bidOrders = filterNumbersWithinXPercentage(bidOrders, bidDifferenceThreshold);
-  console.log('filterNumbersWithinXPercentage ran', askOrders);
+  askLevels = filterNumbersWithinXPercentage(askLevels, askDifferenceThreshold); // We reserve here so that the last order (closest to current price) is checked first
+  bidLevels = filterNumbersWithinXPercentage(bidLevels, bidDifferenceThreshold);
+  // console.log('filterNumbersWithinXPercentage ran', bidLevels);
 
   // Get the last 5 asks 
-  askOrders = askOrders.reverse().slice(-5);
+  askLevels = askLevels.reverse().slice(-5);
   // Get the first 5 bids
-  bidOrders = bidOrders.slice(0, 5);
-  console.log('After slice', askOrders);
+  bidLevels = bidLevels.slice(0, 5);
+  // console.log('After slice', bidLevels);
 
-  const ticker = await fetchRealTicker(pairConfig, pair);
-
-  askOrders = calculateAskOrders(userBalance, askOrders, ticker.last, minUsdtAmount);
-  // console.log('askOrders', askOrders);
-  bidOrders = calculateBidOrders(userBalance, bidOrders, ticker.last, baseUsdtAmount, maxUsdtAmount);
+  let askOrdersWithAmount = calculateAskOrders(userBalance, askLevels, minUsdtAmount);
+  let bidOrdersWithAmount = calculateBidOrders(userBalance, bidLevels, baseUsdtAmount, maxUsdtAmount);
 
   if (!testing) { // We pass a var testing via server.mjs endpoint if we are testing the strategy, so that no real orders are deleted/created
+    //const ticker = await fetchRealTicker(pairConfig, pair);
+
     // Remove all current orders from the book
     const openOrders = await fetchOpenOrders(pairConfig, pair);
     openOrders.forEach(order => {
@@ -107,12 +110,16 @@ export default async function strategy(pairConfig, pair, testing = false) {
     });
 
     // Create all ask orders
-    askOrders.forEach(order => {
+    //console.log(askOrdersWithAmount);
+    // This line filters out fake data created above. This fake data is created when we don't have actual baseValue to sell
+    askOrdersWithAmount = askOrdersWithAmount.filter(order => !(order.amount === 0.0001 && order.amountUsdt === 4.9));
+    // console.log(askOrdersWithAmount);
+    askOrdersWithAmount.forEach(order => {
       createOrder(pairConfig, pair, 'limit', 'sell', order.amount, order.price);
     });
 
     // Create bid ask orders
-    bidOrders.forEach(order => {
+    bidOrdersWithAmount.forEach(order => {
       createOrder(pairConfig, pair, 'limit', 'buy', order.amount, order.price);
     });
   } else {
@@ -121,8 +128,9 @@ export default async function strategy(pairConfig, pair, testing = false) {
 
   // This part is needed for testing the strategy, this information is pushed into the TV chart on click "TEST STRATEGY".
   // The actual bot doesn't use this return values
+  //console.log('before print', askOrdersWithAmount);
   return {
-    asks: askOrders,
-    bids: bidOrders
+    asks: askOrdersWithAmount,
+    bids: bidOrdersWithAmount
   };
 }

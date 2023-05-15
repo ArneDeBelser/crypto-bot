@@ -48,5 +48,9 @@ export const strategyConfigs = {
         klineRangeHighAdjustmentFactor: {
             defaultValue: 1.1, // +10% -  For example, if the highest value obtained from the trading data is $100 and the klineRangeHighAdjustmentFactor is 1.1, the function will expand the valid price range by multiplying $100 by 1.1 to obtain a new maximum value of $110.
         },
+
+        bigMoveThreshold: {
+            defaultValue: 0.7,
+        }
     },
 };

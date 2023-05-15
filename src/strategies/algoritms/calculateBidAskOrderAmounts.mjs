@@ -1,9 +1,18 @@
-export function calculateAskOrders(userBalance, orders, ticker, minUsdtAmount) {
+export function calculateAskOrders(userBalance, orders, minUsdtAmount) {
     const baseValue = userBalance.base;
     const usdtValue = userBalance.usdtValue;
 
     // console.log("Initial user balance:", userBalance);
+    //  console.log("Min usdt amount:", minUsdtAmount);
     // console.log("Initial orders:", orders);
+
+    // Handle the case where usdtValue or baseValue is 0
+    if (baseValue === 0) {
+        const amount = 0.0001;
+        const amountUsdt = 4.9;
+        const asks = orders.map((price) => ({ price, amount, amountUsdt }));
+        return asks;
+    }
 
     // Discard orders until the average USDT per order is greater than or equal to minUsdtAmount
     while (usdtValue / orders.length < minUsdtAmount) {
@@ -21,7 +30,7 @@ export function calculateAskOrders(userBalance, orders, ticker, minUsdtAmount) {
     // console.log("Filtered orders after checking if only one left:", orders);
 
     let remainingBase = baseValue;
-    let askOrders = [];
+    let asks = [];
 
     const basePerOrder = Math.floor(baseValue / orders.length);
     const remainingBaseForLastOrder = baseValue - (basePerOrder * (orders.length - 1));
@@ -57,26 +66,26 @@ export function calculateAskOrders(userBalance, orders, ticker, minUsdtAmount) {
         // console.log("Current USDT amount:", currentUsdtAmount);
 
         if (currentUsdtAmount >= minUsdtAmount) {
-            askOrders.push({
+            asks.push({
                 price,
                 amount: currentBaseAmount,
                 amountUsdt: currentUsdtAmount
             });
             remainingBase -= currentBaseAmount;
-            //console.log("Created new ask order:", askOrders[askOrders.length - 1]);
+            //console.log("Created new ask order:", asks[asks.length - 1]);
         } else {
-            askOrders[0].amount += remainingBase;
-            askOrders[0].amountUsdt += remainingBase * price;
+            asks[0].amount += remainingBase;
+            asks[0].amountUsdt += remainingBase * price;
             remainingBase = 0;
-            // console.log("Allocated remaining base to the first order:", askOrders[0]);
+            // console.log("Allocated remaining base to the first order:", asks[0]);
         }
     });
 
-    //console.log("Final ask orders:", askOrders);
-    return askOrders;
+    //console.log("Final ask orders:", asks);
+    return asks;
 }
 
-export function calculateBidOrders(userBalance, orders, ticker, baseUsdtAmount, maxUsdtAmount) {
+export function calculateBidOrders(userBalance, orders, baseUsdtAmount, maxUsdtAmount) {
     const usdtValue = userBalance.usdtValue;
     const usdtLeftToDivide = maxUsdtAmount - usdtValue;
 

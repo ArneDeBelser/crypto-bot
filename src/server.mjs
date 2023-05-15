@@ -132,5 +132,6 @@ function isBotRunning() {
 }
 
 await import('./fetchTrades.mjs');
+// await import('./analyzeSpikers.mjs');
 
 export default app;
